@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { parse }  = require("csv-parse/sync");
 const FormData = require("form-data");
 
 let Chapter = class {
@@ -37,12 +38,49 @@ let Chapter = class {
             if (this.#loggedIn) {
                 resolve("Successfully logged in");
             }
+            else if (this.#loadMembers(this.#CFID, this.#CFTOKEN) !== 0) {
+                reject("ERROR while loading chapter roster.");
+            }
             else {
                 reject("ERROR: Invalid login credentials.");
             }
+
         });
 
         return result;
+    }
+
+    // parses and loads members into memberList variable
+    // loads as array of objects
+    async #loadMembers(CFID, CFTOKEN) {
+        // get request that returns the list of members in the chapter, in a csv format
+        await axios
+        .get(
+            "https://services.acm.org/public/chapters/loadmembers/view_edit.cfm?CFID=" +
+                CFID +
+                "&CFTOKEN=" +
+                CFTOKEN +
+                "&mcsv=y&expfilter=x"
+        )
+        .then((res) => {
+            //storing csv data in variable as a string...
+            this.#memberList = res.data;
+        })
+        .catch((err) => {
+            //console.error(err);
+            return -1;
+        });
+
+        // using csv parse library to parse csv string
+        // columns: true enables array of objects
+        this.#memberList = parse(this.#memberList, { columns: true });
+
+        if (!this.#memberList) {
+            //console.error("Error parsing member list");
+            return -1;
+        }
+
+        return 0;
     }
 }
 
