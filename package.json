@@ -1,0 +1,25 @@
+{
+  "name": "acm-roster",
+  "version": "1.0.0",
+  "description": "Fetches member data from ACM Admin Panel",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mgrist/acm-roster.git"
+  },
+  "keywords": [
+    "acm",
+    "members",
+    "roster",
+    "panel"
+  ],
+  "author": "Matthew Grist",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mgrist/acm-roster/issues"
+  },
+  "homepage": "https://github.com/mgrist/acm-roster#readme"
+}
