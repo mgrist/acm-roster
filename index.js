@@ -213,7 +213,7 @@ let Chapter = class {
             else {
                 let result = [];
                 let tempList = this.#memberList;
-                // sort list by first names
+                // sort list by first name, sorts in place so copying original memberlist.
                 await tempList.sort((first, second) => (first["firstName"] > second["firstName"]) ? 1 : -1);
                 // find first occurance of name
                 let start = tempList.findIndex(element => element["firstName"] === firstName);
@@ -224,6 +224,173 @@ let Chapter = class {
                 }
 
                 for (let i = start; i < tempList.length && tempList[i].firstName == firstName; i++) {
+                    result.push(tempList[i]);
+                }
+
+                resolve(result);
+            }
+        });
+    }
+
+    /****************************************************************************/
+    /* getMembersByLastName(lastName) method                                  */
+    /*                                                                          */
+    /* The getMembersByLastName() method retrieves all chapter members with    */
+    /* the last name that is specified in the function argument. Must pass a   */
+    /* string as an argument and must be logged in.                             */
+    /*                                                                          */
+    /* Return Type: promise, member obect on success, error message on fail.    */
+    /****************************************************************************/
+    async getMembersByLastName(lastName) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.#loggedIn) {
+                reject("ERROR: Must be logged in to fetch member data");
+            }
+            else if(!lastName) {
+                reject("ERROR: Must pass a name to search for.");
+            }
+            else if(typeof(lastName) !== "string") {
+                reject("ERROR: Invalid data type, must pass a string.");
+            }
+            else {
+                let result = [];
+                // find first occurance of name
+                let start = this.#memberList.findIndex(element => element["lastName"] === lastName);
+
+                if (start === -1) {
+                    reject("ERROR: No members with the last name, \"" + lastName + "\", were found.");
+                    return;
+                }
+
+                for (let i = start; i < this.#memberList.length && this.#memberList[i].lastName == lastName; i++) {
+                    result.push(this.#memberList[i]);
+                }
+
+                resolve(result);
+            }
+        });
+    }
+
+    /****************************************************************************/
+    /* getMembersByAffiliation(affiliation) method                              */
+    /*                                                                          */
+    /* The getMembersByAffiliation() method retrieves all chapter members with  */
+    /* the affiliation that is specified in the function argument. Must pass a  */
+    /* string as an argument and must be logged in.                             */
+    /*                                                                          */
+    /* Return Type: promise, member obect on success, error message on fail.    */
+    /****************************************************************************/
+    async getMembersByAffiliation(affiliation) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.#loggedIn) {
+                reject("ERROR: Must be logged in to fetch member data");
+            }
+            else if(!affiliation) {
+                reject("ERROR: Must pass an affiliation to search for.");
+            }
+            else if(typeof(affiliation) !== "string") {
+                reject("ERROR: Invalid data type, must pass a string.");
+            }
+            else {
+                let result = [];
+                let tempList = this.#memberList;
+                // sort list by affiliation, sorts in place, so copying original memberlist.
+                await tempList.sort((first, second) => (first["affiliation"] > second["affiliation"]) ? 1 : -1);
+                // find first occurance of name
+                let start = tempList.findIndex(element => element["affiliation"] === affiliation);
+
+                if (start === -1) {
+                    reject({
+                        message: "ERROR: No members with the affiliation, \"" + affiliation + "\", were found.",
+                        status: -1});
+                    return;
+                }
+
+                // add all matches to the result variable
+                for (let i = start; i < tempList.length && tempList[i].affiliation == affiliation; i++) {
+                    result.push(tempList[i]);
+                }
+
+                resolve(result);
+            }
+        });
+    }
+
+    /****************************************************************************/
+    /* getMembersByType(memberType) method                                      */
+    /*                                                                          */
+    /* The getMembersByType() method retrieves all chapter members with         */
+    /* the member type that is specified in the function argument. Must pass a  */
+    /* string as an argument and must be logged in. E.g Chapter Member, Vice    */
+    /* Chair, Treasurer, etc.                                                   */
+    /*                                                                          */
+    /* Return Type: promise, member obect on success, error message on fail.    */
+    /****************************************************************************/
+    async getMembersByType(memberType) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.#loggedIn) {
+                reject("ERROR: Must be logged in to fetch member data");
+            }
+            else if(!memberType) {
+                reject("ERROR: Must pass an member type to search for.");
+            }
+            else if(typeof(memberType) !== "string") {
+                reject("ERROR: Invalid data type, must pass a string.");
+            }
+            else {
+                let result = [];
+                let tempList = this.#memberList;
+                // sort list by member type, sorts in place, so copying original memberlist.
+                await tempList.sort((first, second) => (first["memberType"] > second["memberType"]) ? 1 : -1);
+                // find first occurance of name
+                let start = tempList.findIndex(element => element["memberType"] === memberType);
+
+                if (start === -1) {
+                    reject({
+                        message: "ERROR: No members with the member type, \"" + memberType + "\", were found.",
+                        status: -1});
+                    return;
+                }
+
+                // add all matches to the result variable
+                for (let i = start; i < tempList.length && tempList[i].memberType == memberType; i++) {
+                    result.push(tempList[i]);
+                }
+
+                resolve(result);
+            }
+        });
+    }
+
+    /****************************************************************************/
+    /* getActiveMembers() method                                                */
+    /*                                                                          */
+    /* getActiveMembers() retrievs all active ACM members within your chapter.  */
+    /*                                                                          */
+    /*Return Type: promise, member object(s) on success, error message on fail  */
+    /****************************************************************************/
+    async getActiveMembers() {
+        return new Promise(async (resolve, reject) => {
+            if (!this.#loggedIn) {
+                reject("ERROR: Must be logged in to fetch member data");
+            }
+            else {
+                let result = [];
+                let tempList = this.#memberList;
+                // sort list by member status, sorts in place, so copying original memberlist.
+                await tempList.sort((first, second) => (first["activeMember"] > second["activeMember"]) ? 1 : -1);
+                // find first active member
+                let start = tempList.findIndex(element => element["activeMember"] === "Yes");
+
+                if (start === -1) {
+                    reject({
+                        message: "ERROR: No active members were found. \u2639",
+                        status: -1});
+                    return;
+                }
+
+                // add all matches to the result variable
+                for (let i = start; i < tempList.length && tempList[i].activeMember == "Yes"; i++) {
                     result.push(tempList[i]);
                 }
 
