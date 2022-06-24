@@ -2,17 +2,43 @@
 acm-fetch is an npm (node.js) package that fetches the roster data of an ACM Student Chapter. This is intended to be used by ACM Student Chapters that need to access their chapter members data for use in their applications. The script provides the member number, first name, last name, e-mail, affiliation, membership type, date added, expiration date, and ACM membership status for all current chapter members.
 
 ## What you will need
-The only information you need is the **username and password** that is used to login to the ACM Administrator Panel for your chapter.
+The only information you need is the ACM Administrator Panel **username and password** for your chapter.
 
 ## Installing package
 Run the command `npm install acm-roster` to add this package to your project.
 
 ## Usage
+The package methods are asynchronous and must be called within an async function or with a promise. It is important that one method finishes its job before the next method begins. Both techniques are show below:<br><br>
+
+**Using async function**
 ```
 const Chapter = require("acm-roster");
 
+async function main() {
+	const client = new Chapter();
+
+	// log in to chapters ACM account
+	await client.login("acm-username", "acm-password")
+		.then((res) => console.log(res))
+		.catch((err) => console.log(err));
+
+	// retrives all chapter members
+	await client.getAllMembers()
+		.then((res) => console.log(res))
+		.catch((err) => console.log(err));
+}
 ```
 
+**Using a promise**
+```
+// log in to chapters ACM account
+client.login("acm-username", "acm-password")
+	.then((res) => {
+		client.getAllMembers().then(() => console.log("successful"));
+	})
+	.catch((err) => console.log(err));
+```
+**NOTE:** The initial login method takes a few seconds (5 avg) due to ACM's servers.<br>
 ## How it works
 1. The script begins by supplying your login credentials to a form, and the form is sent in a post request using x-www-form-urlencoding to the ACM host url. This will log you into the ACM admin panel.
 
