@@ -22,6 +22,8 @@ let Chapter = class {
     /* memberList variable. This is so that methods can be called without having*/
     /* to first call the loadMembers() method. However, if the user wants to    */
     /* ensure the member list is up-to-date, loadMembers() must be called.      */
+    /*                                                                          */
+    /* Return Type: promise, error or success message                           */
     /****************************************************************************/
     async login(username, password) {
         // create new form data needed to log into the admin panel
@@ -45,11 +47,13 @@ let Chapter = class {
             }
         });
 
-        const result = new Promise((resolve, reject) => {
-            if (this.#loggedIn) {
+        // promise checks if logged in and members loaded into variable
+        const result = new Promise(async (resolve, reject) => {
+            let status = await this.loadMembers()
+            if (this.#loggedIn && status === 0) {
                 resolve("Successfully logged in");
             }
-            else if (this.#loadMembers() !== 0) {
+            else if (status !== 0) {
                 reject("ERROR while loading chapter roster.");
             }
             else {
@@ -71,6 +75,8 @@ let Chapter = class {
     /*                                                                          */
     /* NOTE: This function takes several (5 avg) seconds to execute due to the  */
     /* load times of ACM servers.                                               */
+    /*                                                                          */
+    /* Return Type: integer, 0 on success, -1 on failure                        */
     /****************************************************************************/
     async loadMembers() {
         // get request that returns the list of members in the chapter, in a csv format
@@ -101,6 +107,25 @@ let Chapter = class {
         }
 
         return 0;
+    }
+
+    /****************************************************************************/
+    /* getAllMembers() method                                                   */
+    /*                                                                          */
+    /* The getAllMembers() method is simply to return the whole list of members */
+    /* within the ACM Chapter. Must be logged in before calling this method.    */
+    /*                                                                          */
+    /* Return Type: promise, array of objects on success, error message on fail */
+    /****************************************************************************/
+    async getAllMembers() {
+        return new Promise((resolve, reject) => {
+            if (this.#loggedIn) {
+                resolve(this.#memberList);
+            }
+            else {
+                reject("ERROR: You must be logged in to fetch members.");
+            }
+        });
     }
 }
 
