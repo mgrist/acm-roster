@@ -1,5 +1,5 @@
-# acm-fetch
-acm-fetch is an npm (node.js) package that fetches the roster data of an ACM Student Chapter. This is intended to be used by ACM Student Chapters that need to access their chapter members data for use in their applications. The script provides the member number, first name, last name, e-mail, affiliation, membership type, date added, expiration date, and ACM membership status for all current chapter members.
+# acm-roster
+acm-roster is an npm (node.js) package that fetches the roster data of an ACM Student Chapter. This is intended to be used by ACM Student Chapters that need to access their chapter members data for use in their applications. The script provides the member number, first name, last name, e-mail, affiliation, membership type, date added, expiration date, and ACM membership status for all current chapter members.
 
 ## What you will need
 The only information you need is the ACM Administrator Panel **username and password** for your chapter.
