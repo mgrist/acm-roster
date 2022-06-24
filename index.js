@@ -99,7 +99,17 @@ let Chapter = class {
 
         // parses and loads members into memberList variables
         // columns: true enables array of objects
-        this.#memberList = parse(this.#memberList, { columns: true });
+        this.#memberList = parse(this.#memberList, { columns: [
+            "memberNumber",
+            "firstName",
+            "lastName",
+            "email",
+            "affiliation",
+            "memberType",
+            "dateAdded",
+            "expireDate",
+            "activeMember"
+        ] });
 
         if (!this.#memberList) {
             //console.error("Error parsing member list");
@@ -129,7 +139,7 @@ let Chapter = class {
     }
 
     /****************************************************************************/
-    /* getMemberByID() method                                                   */
+    /* getMemberByID(acmID) method                                              */
     /*                                                                          */
     /* The getMemberByID() method is simply used to fetch a members data based  */
     /* on a specific ACM membership id, which is passed as an argument. Must be */
@@ -137,19 +147,19 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: promise, object with data on success, error message on fail */
     /****************************************************************************/
-    async getMemberByID(acm_id) {
+    async getMemberByID(acmID) {
         return new Promise ((resolve, reject) => {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
             }
-            else if(!acm_id) {
+            else if(!acmID) {
                 reject("ERROR: Must pass an ID to search for.");
             }
-            else if(typeof(acm_id) !== "string" && typeof(acm_id) !== "number") {
+            else if(typeof(acmID) !== "string" && typeof(acmID) !== "number") {
                 reject("ERROR: ID must be a number or a string.");
             }
             else {
-                resolve(this.#memberList.find((element) => element["Member Number"] == acm_id));
+                resolve(this.#memberList.find((element) => element["memberNumber"] == acmID));
             }
         });
     }
@@ -175,10 +185,53 @@ let Chapter = class {
                 reject("ERROR: Invalid data type, must pass a string.");
             }
             else {
-                resolve(this.#memberList.find((element) => element["E-mail"] == email));
+                resolve(this.#memberList.find((element) => element["email"] == email));
             }
         });
     }
+
+    /****************************************************************************/
+    /* getMembersByFirstName(firstName) method                                  */
+    /*                                                                          */
+    /* The getMembersByFirstName() method retrieves all chapter members with    */
+    /* the first name that is specified in the function argument. Must pass a   */
+    /* string as an argument and must be logged in.                             */
+    /*                                                                          */
+    /* Return Type: promise, member obect on success, error message on fail.    */
+    /****************************************************************************/
+    async getMembersByFirstName(firstName) {
+        return new Promise(async (resolve, reject) => {
+            if (!this.#loggedIn) {
+                reject("ERROR: Must be logged in to fetch member data");
+            }
+            else if(!firstName) {
+                reject("ERROR: Must pass a name to search for.");
+            }
+            else if(typeof(firstName) !== "string") {
+                reject("ERROR: Invalid data type, must pass a string.");
+            }
+            else {
+                let result = [];
+                let tempList = this.#memberList;
+                // sort list by first names
+                await tempList.sort((first, second) => (first["firstName"] > second["firstName"]) ? 1 : -1);
+                // find first occurance of name
+                let start = tempList.findIndex(element => element["firstName"] === firstName);
+
+                if (start === -1) {
+                    reject("ERROR: No members with the first name, \"" + firstName + "\", were found.");
+                    return;
+                }
+
+                for (let i = start; i < tempList.length && tempList[i].firstName == firstName; i++) {
+                    result.push(tempList[i]);
+                }
+
+                resolve(result);
+            }
+        });
+    }
+
 }
 
 module.exports = Chapter;
