@@ -68,7 +68,7 @@ let Chapter = class {
     /****************************************************************************/
     /* loadMembers() method                                                     */
     /*                                                                          */
-    /* The loadMembers() method simply updates the memberList with the most     */
+    /* The loadMembers() method updates the memberList with the most            */
     /* recent roster data. This is to be used when recent changes have been made*/
     /* to the roster, and you want to update the memberList data to ensure it's */
     /* up-to-date.                                                              */
@@ -122,7 +122,7 @@ let Chapter = class {
     /****************************************************************************/
     /* getAllMembers() method                                                   */
     /*                                                                          */
-    /* The getAllMembers() method is simply to return the whole list of members */
+    /* The getAllMembers() method is to return the whole list of members        */
     /* within the ACM Chapter. Must be logged in before calling this method.    */
     /*                                                                          */
     /* Return Type: promise, array of objects on success, error message on fail */
@@ -141,7 +141,7 @@ let Chapter = class {
     /****************************************************************************/
     /* getMemberByID(acmID) method                                              */
     /*                                                                          */
-    /* The getMemberByID() method is simply used to fetch a members data based  */
+    /* The getMemberByID() method is used to fetch a members data based         */
     /* on a specific ACM membership id, which is passed as an argument. Must be */
     /* logged in before calling this method. ID must be a string or integer     */
     /*                                                                          */
@@ -167,7 +167,7 @@ let Chapter = class {
     /****************************************************************************/
     /* getMemberByEmail() method                                                */
     /*                                                                          */
-    /* The getMemberByEmail() method is simply used to fetch a members data     */
+    /* The getMemberByEmail() method is used to fetch a members data            */
     /* based on a specific ACM membership id, which is passed as an argument.   */
     /* Must be logged in before calling this method. ID must be a string.       */
     /*                                                                          */
