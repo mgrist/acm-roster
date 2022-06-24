@@ -127,6 +127,32 @@ let Chapter = class {
             }
         });
     }
+
+    /****************************************************************************/
+    /* getMemberByID() method                                                   */
+    /*                                                                          */
+    /* The getMemberByID() method is simply used to fetch a members data based  */
+    /* on a specific ACM membership id, which is passed as an argument. Must be */
+    /* logged in before calling this method. ID must be a string or integer     */
+    /*                                                                          */
+    /* Return Type: promise, object with data on success, error message on fail */
+    /****************************************************************************/
+    async getMemberByID(acm_id) {
+        return new Promise ((resolve, reject) => {
+            if (!this.#loggedIn) {
+                reject("ERROR: Must be logged in to fetch member data");
+            }
+            else if(!acm_id) {
+                reject("ERROR: Must pass and ID to search for.");
+            }
+            else if(typeof(acm_id) !== "string" && typeof(acm_id) !== "number") {
+                reject("ERROR: ID must be a number or a string.");
+            }
+            else {
+                resolve(this.#memberList.find((element) => element["Member Number"] == acm_id));
+            }
+        });
+    }
 }
 
 module.exports = Chapter;
