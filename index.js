@@ -76,47 +76,53 @@ let Chapter = class {
     /* NOTE: This function takes several (5 avg) seconds to execute due to the  */
     /* load times of ACM servers.                                               */
     /*                                                                          */
-    /* Return Type: integer, 0 on success, -1 on failure                        */
+    /* Return Type: prmoise, message and status on success and fail.            */
     /****************************************************************************/
     async loadMembers() {
-        // get request that returns the list of members in the chapter, in a csv format
-        await axios
-        .get(
-            "https://services.acm.org/public/chapters/loadmembers/view_edit.cfm?CFID=" +
-                this.#CFID +
-                "&CFTOKEN=" +
-                this.#CFTOKEN +
-                "&mcsv=y&expfilter=x"
-        )
-        .then((res) => {
-            //storing csv data in variable as a string...
-            this.#memberList = res.data;
-        })
-        .catch((err) => {
-            //console.error(err);
-            return -1;
+        return new Promise(async (resolve, reject) => {
+            // get request that returns the list of members in the chapter, in a csv format
+            await axios
+            .get(
+                "https://services.acm.org/public/chapters/loadmembers/view_edit.cfm?CFID=" +
+                    this.#CFID +
+                    "&CFTOKEN=" +
+                    this.#CFTOKEN +
+                    "&mcsv=y&expfilter=x"
+            )
+            .then((res) => {
+                //storing csv data in variable as a string...
+                this.#memberList = res.data;
+            })
+            .catch((err) => {
+                reject(err);
+                return;
+            });
+
+            // parses and loads members into memberList variables
+            // columns: true enables array of objects
+            this.#memberList = parse(this.#memberList, { columns: [
+                "memberNumber",
+                "firstName",
+                "lastName",
+                "email",
+                "affiliation",
+                "memberType",
+                "dateAdded",
+                "expireDate",
+                "activeMember"
+            ] });
+
+            if (!this.#memberList) {
+                reject("ERROR parsing member list");
+                return;
+            }
+
+            resolve({
+                message: "Chapter roster has been refreshed.",
+                status: 1
+            });
+            return;
         });
-
-        // parses and loads members into memberList variables
-        // columns: true enables array of objects
-        this.#memberList = parse(this.#memberList, { columns: [
-            "memberNumber",
-            "firstName",
-            "lastName",
-            "email",
-            "affiliation",
-            "memberType",
-            "dateAdded",
-            "expireDate",
-            "activeMember"
-        ] });
-
-        if (!this.#memberList) {
-            //console.error("Error parsing member list");
-            return -1;
-        }
-
-        return 0;
     }
 
     /****************************************************************************/
@@ -398,7 +404,6 @@ let Chapter = class {
             }
         });
     }
-
 }
 
 module.exports = Chapter;
