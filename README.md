@@ -19,17 +19,17 @@ Since the package methods are asynchronous, they must be called within an async 
 const Chapter = require("acm-roster");
 
 async function main() {
-	const client = new Chapter();
+    const client = new Chapter();
 
-	// log in to chapters ACM account
-	await client.login("acm-username", "acm-password")
-		.then((res) => console.log(res))
-		.catch((err) => console.log(err));
+    // log in to chapters ACM account
+    await client.login("acm-username", "acm-password")
+        .then((res) => console.log(res))
+	.catch((err) => console.log(err));
 
-	// retrives all chapter members
-	await client.getAllMembers()
-		.then((res) => console.log(res))
-		.catch((err) => console.log(err));
+    // retrives all chapter members
+    await client.getAllMembers()
+	.then((res) => console.log(res))
+	.catch((err) => console.log(err));
 }
 ```
 
@@ -37,11 +37,12 @@ async function main() {
 ```
 // log in to chapters ACM account
 client.login("acm-username", "acm-password")
-	.then((res) => {
-		client.getAllMembers().then(() => console.log("successful"));
-	})
-	.catch((err) => console.log(err));
+    .then((res) => {
+	client.getAllMembers().then(() => console.log("successful"));
+    })
+    .catch((err) => console.log(err));
 ```
+Executing your methods within a promise can make your code difficult to read and understand, so only use this method when using an async function is not an option.
 ## Available Methods
 * `login` (string, string)<br>Version 1.0.0<br>login takes two strings for input, a username and password, in that respective order. Logs your client in to ACM Panel to access your chapters roster data.<br>Returns: Promise, error or success message and status code.
 
