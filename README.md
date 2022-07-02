@@ -74,4 +74,5 @@ To see more details on the method, such as the return type and input parameters,
 You can find the documentation here.
 
 ## Contact
+[![email-svg](https://img.shields.io/badge/email-matthewgrist0311%40gmail.com-red?style=flat&logo=gmail)](mailto:matthewgrist0311@gmail.com)<br>
 Copyright (c) 2022 Matthew Grist
