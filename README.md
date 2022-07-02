@@ -45,7 +45,7 @@ client.login("acm-username", "acm-password")
 Executing your methods within a promise can make your code difficult to read and understand, so it is recommended you only use this method when using an async function is not an option.
 ## Available Methods
 To see more details on the method, such as the return type and input parameters, click the method name or visit THE WIKI.
-* `login` - Logs your client in to ACM Panel to access your chapters roster data.
+* [`login`](https://github.com/mgrist/acm-roster/wiki/login()) - Logs your client in to ACM Panel to access your chapters roster data.
 * `reloadMembers` - Updates member list with the most recent roster data. Used when changes have been made to the roster and you want to refresh the members.
 * `getAllMembers` - Retrieves the entire list of members from your chapter.
 * `getMemberByID` - Fetches a members data based on a specific ACM ID.
