@@ -44,7 +44,7 @@ client.login("acm-username", "acm-password")
 ```
 Executing your methods within a promise can make your code difficult to read and understand, so it is recommended you only use this method when using an async function is not an option.
 ## Available Methods
-To see more details on the method, such as the return type and input parameters, click the method name or visit THE WIKI.
+To see more details on the method, such as the return type and input parameters, click the method name or [visit the Wiki](https://github.com/mgrist/acm-roster/wiki).
 * [`login`](https://github.com/mgrist/acm-roster/wiki/login()) - Logs your client in to ACM Panel to access your chapters roster data.
 * `reloadMembers` - Updates member list with the most recent roster data. Used when changes have been made to the roster and you want to refresh the members.
 * `getAllMembers` - Retrieves the entire list of members from your chapter.
@@ -71,7 +71,7 @@ To see more details on the method, such as the return type and input parameters,
 4. The CSV string is then parsed into an array of objects, which can be manipulated however you desire. For example, updating a MongoDB database with the most recent roster data.
 
 ## Documentation
-You can find the documentation here.
+You can find [the documentation here](https://github.com/mgrist/acm-roster/wiki).
 
 ## Contact
 [![email-svg](https://img.shields.io/badge/email-matthewgrist0311%40gmail.com-red?style=flat&logo=gmail)](mailto:matthewgrist0311@gmail.com)<br>
