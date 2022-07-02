@@ -20,10 +20,10 @@ let Chapter = class {
     /*                                                                          */
     /* After logging in, the student roster is preemptively loaded into the     */
     /* memberList variable. This is so that methods can be called without having*/
-    /* to first call the loadMembers() method. However, if the user wants to    */
-    /* ensure the member list is up-to-date, loadMembers() must be called.      */
+    /* to first call the reloadMembers() method. However, if the user wants to  */
+    /* ensure the member list is up-to-date, reloadMembers() must be called.    */
     /*                                                                          */
-    /* Return Type: promise, error or success message                           */
+    /* Return Type: promise, error message or updated member list               */
     /****************************************************************************/
     async login(username, password) {
         // create new form data needed to log into the admin panel
@@ -49,37 +49,38 @@ let Chapter = class {
 
         // promise checks if logged in and members loaded into variable
         const result = new Promise(async (resolve, reject) => {
-            let status = await this.loadMembers()
-            if (this.#loggedIn && status === 0) {
-                resolve("Successfully logged in");
-            }
-            else if (status !== 0) {
-                reject("ERROR while loading chapter roster.");
-            }
-            else {
-                reject("ERROR: Invalid login credentials.");
+            if (!this.#loggedIn) {
+                throw new Error("Login attempt unsuccessful, check login credentials.");
             }
 
+            await this.reloadMembers()
+                .then(resolve("Successfully logged in."))
+                .catch(reject("ERROR while loading chapter roster."));
         });
 
         return result;
     }
 
     /****************************************************************************/
-    /* loadMembers() method                                                     */
+    /* reloadMembers() method                                                   */
     /*                                                                          */
-    /* The loadMembers() method updates the memberList with the most            */
-    /* recent roster data. This is to be used when recent changes have been made*/
-    /* to the roster, and you want to update the memberList data to ensure it's */
+    /* The reloadMembers() method updates the memberList with the most recent   */
+    /* roster data. This is to be used when recent changes have been made       */
+    /* to the roster and you want to update the memberList data to ensure it's  */
     /* up-to-date.                                                              */
     /*                                                                          */
-    /* NOTE: This function takes several (5 avg) seconds to execute due to the  */
-    /* load times of ACM servers.                                               */
+    /* NOTE: This function takes several (5 on avg) seconds to execute due to   */
+    /* the load times of ACM servers.                                           */
     /*                                                                          */
     /* Return Type: prmoise, message and status on success and fail.            */
     /****************************************************************************/
-    async loadMembers() {
+    async reloadMembers() {
         return new Promise(async (resolve, reject) => {
+            if (!this.#loggedIn) {
+                reject("ERROR: Must be logged in to load members.");
+                return;
+            }
+
             // get request that returns the list of members in the chapter, in a csv format
             await axios
             .get(
@@ -113,15 +114,12 @@ let Chapter = class {
             ] });
 
             if (!this.#memberList) {
-                reject("ERROR parsing member list");
+                reject("ERROR parsing member list.");
                 return;
             }
 
-            resolve({
-                message: "Chapter roster has been refreshed.",
-                status: 1
-            });
-            return;
+            resolve(this.#memberList);
+
         });
     }
 
@@ -239,10 +237,10 @@ let Chapter = class {
     }
 
     /****************************************************************************/
-    /* getMembersByLastName(lastName) method                                  */
+    /* getMembersByLastName(lastName) method                                    */
     /*                                                                          */
-    /* The getMembersByLastName() method retrieves all chapter members with    */
-    /* the last name that is specified in the function argument. Must pass a   */
+    /* The getMembersByLastName() method retrieves all chapter members with     */
+    /* the last name that is specified in the function argument. Must pass a    */
     /* string as an argument and must be logged in.                             */
     /*                                                                          */
     /* Return Type: promise, member obect on success, error message on fail.    */
@@ -306,9 +304,7 @@ let Chapter = class {
                 let start = tempList.findIndex(element => element["affiliation"] === affiliation);
 
                 if (start === -1) {
-                    reject({
-                        message: "ERROR: No members with the affiliation, \"" + affiliation + "\", were found.",
-                        status: -1});
+                    reject("ERROR: No members with the affiliation, \"" + affiliation + "\", were found.");
                     return;
                 }
 
@@ -352,9 +348,7 @@ let Chapter = class {
                 let start = tempList.findIndex(element => element["memberType"] === memberType);
 
                 if (start === -1) {
-                    reject({
-                        message: "ERROR: No members with the member type, \"" + memberType + "\", were found.",
-                        status: -1});
+                    reject("ERROR: No members with the member type, \"" + memberType + "\", were found.");
                     return;
                 }
 
@@ -389,9 +383,7 @@ let Chapter = class {
                 let start = tempList.findIndex(element => element["activeMember"] === "Yes");
 
                 if (start === -1) {
-                    reject({
-                        message: "ERROR: No active members were found. \u2639",
-                        status: -1});
+                    reject("ERROR: No active members were found. \u2639");
                     return;
                 }
 
@@ -403,6 +395,114 @@ let Chapter = class {
                 resolve(result);
             }
         });
+    }
+
+    /****************************************************************************/
+    /* getInactiveMembers() method                                              */
+    /*                                                                          */
+    /* getInactiveMembers() retrievs all inactive ACM members in your chapter.  */
+    /*                                                                          */
+    /*Return Type: promise, member object(s) on success, error message on fail  */
+    /****************************************************************************/
+    async getInactiveMembers() {
+        return new Promise(async (resolve, reject) => {
+            if (!this.#loggedIn) {
+                reject("ERROR: Must be logged in to fetch member data");
+            }
+            else {
+                let result = [];
+                let tempList = this.#memberList;
+                // sort list by member status, sorts in place, so copying original memberlist.
+                await tempList.sort((first, second) => (first["activeMember"] < second["activeMember"]) ? 1 : -1);
+                // find first active member
+                let start = tempList.findIndex(element => element["activeMember"] === "No");
+
+                if (start === -1) {
+                    reject("ERROR: No inactive members were found. \u2639");
+                    return;
+                }
+
+                // add all matches to the result variable
+                for (let i = start; i < tempList.length && tempList[i].activeMember == "No"; i++) {
+                    result.push(tempList[i]);
+                }
+
+                resolve(result);
+            }
+        });
+    }
+
+    /****************************************************************************/
+    /* isMember(id) method                                                      */
+    /*                                                                          */
+    /* Determines if the supplied member is a registered member of your chapter.*/
+    /* Must be passed an ACM id as a number or string or a member object.       */
+    /*                                                                          */
+    /* Return Type: Boolean, true if they are a member, false otherwise         */
+    /****************************************************************************/
+    isMember(id) {
+        if (typeof id === "object") {
+            if (id == null) return false;
+			id = id.memberNumber;
+		}
+
+        let result = this.#memberList.find(element => element["memberNumber"] == id);
+
+        if (result) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /****************************************************************************/
+    /* isActiveMember(id) method                                                */
+    /*                                                                          */
+    /* Determines if the supplied member is a registered member of your chapter */
+    /* and has an active ACM membership.                                        */
+    /* Must pass an ACM id as a number or string or a member object.            */
+    /*                                                                          */
+    /* Return Type: Boolean, true if they are a member, false otherwise         */
+    /****************************************************************************/
+    isActiveMember(id) {
+        if (typeof id === "object") {
+            if (id == null) return false;
+			id = id.memberNumber;
+		}
+
+        let result = this.#memberList.find(element => element["memberNumber"] == id);
+
+        if (result && result.activeMember === "Yes") {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /****************************************************************************/
+    /* isOfficer(id) method                                                     */
+    /*                                                                          */
+    /* Determines if the supplied member is an officer of your chapter.         */
+    /* Must pass an ACM id as a number or string or a member object.            */
+    /*                                                                          */
+    /* Return Type: Boolean, true if they are a member, false otherwise         */
+    /****************************************************************************/
+    isOfficer(id) {
+        if (typeof id === "object") {
+            if (id == null) return false;
+			id = id.memberNumber;
+		}
+
+        let result = this.#memberList.find(element => element["memberNumber"] == id);
+
+        if (result && result.memberType !== "Chapter Member" && result.memberType !== "Faculty Sponsor") {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 
