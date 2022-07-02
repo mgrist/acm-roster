@@ -54,8 +54,8 @@ let Chapter = class {
             }
 
             await this.reloadMembers()
-                .then(resolve("Successfully logged in."))
-                .catch(reject("ERROR while loading chapter roster."));
+                .then(() => resolve("Successfully logged in."))
+                .catch(() => reject("ERROR while loading chapter roster."));
         });
 
         return result;
