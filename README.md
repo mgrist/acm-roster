@@ -12,42 +12,54 @@ acm-roster is an npm ([node.js](https://nodejs.org/en/)) package that fetches th
 Run the command `npm install acm-roster` to add this package to your project.
 
 ## Usage
-Since the package methods are asynchronous, they must be called within an async function or within a promise. It is important that one method finishes its job before the next method begins. Both techniques are show below:<br><br>
+Since the package methods are asynchronous, they must be called within an async function or within a promise. It is important that the login method finishes its job before the next method begins. Both techniques are show below:<br><br>
 
-**Using async function**
+**Within an async function:**
 ```js
 const Chapter = require("acm-roster");
 
 async function main() {
+    // creating new client
     const client = new Chapter();
 
     // log in to chapters ACM account
     await client.login("acm-username", "acm-password")
         .then((res) => console.log(res))
-	.catch((err) => console.log(err));
+	.catch((err) => console.error(err));
 
-    // retrives all chapter members
-    await client.getAllMembers()
-	.then((res) => console.log(res))
-	.catch((err) => console.log(err));
+    // retrives Treasurer member data
+    await client.getMembersByType("Treasurer")
+        .then ((res) => {
+		let fname = res[0].firstName;
+		let lname = res[0].lastName;
+		console.log(`${fname} ${lname} is the clubs Treasurer.`);
+	})
+	.catch((err) => console.error(err));
 }
 ```
 
-**Using a promise**
+**Within a promise:**
 ```js
-// log in to chapters ACM account
-client.login("acm-username", "acm-password")
-    .then((res) => {
-	client.getAllMembers().then(() => console.log("successful"));
-    })
-    .catch((err) => console.log(err));
+const Chapter = require("acm-roster");
+
+// creating new client
+const client = new Chapter();
+
+// log in to chapters ACM account with client
+client.login("acm-username", "acm-password").then((async () => {
+    let activeMembers = [];	
+		
+    // get all members with active membership
+    activeMembers = await client.getActiveMembers();
+	
+    console.log(activeMembers);
+});
 ```
-Executing your methods within a promise can make your code difficult to read and understand, so it is recommended you only use this method when using an async function is not an option.
 ## Available Methods
 To see more details on the method, such as the return type and input parameters, click the method name or [visit the Wiki](https://github.com/mgrist/acm-roster/wiki).
 * [`login`](https://github.com/mgrist/acm-roster/wiki/login()) - Logs your client in to ACM Panel to access your chapters roster data.
-* `reloadMembers` - Updates member list with the most recent roster data. Used when changes have been made to the roster and you want to refresh the members.
-* `getAllMembers` - Retrieves the entire list of members from your chapter.
+* [`reloadMembers`](https://github.com/mgrist/acm-roster/wiki/reloadMembers()) - Updates member list with the most recent roster data. Used when changes have been made to the roster and you want to refresh the members.
+* [`getAllMembers`](https://github.com/mgrist/acm-roster/wiki/getAllMembers()) - Retrieves the entire list of members from your chapter.
 * `getMemberByID` - Fetches a members data based on a specific ACM ID.
 * `getMemberByEmail` - Searches roster for members with a certain email address.
 * `getMembersByFristName` - Retrieves all members with a specific first name.
