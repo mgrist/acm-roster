@@ -3,13 +3,18 @@ const { parse }  = require("csv-parse/sync");
 const FormData = require("form-data");
 
 let Chapter = class {
-    #memberList;
+    #memberList = [];
+    #acmSubList = [];
+    #activeList = [];
+    #inactiveList = [];
+
     #loggedIn = false;
+
     /* the CFID and CFTOKEN are required to use the api call that returns
        all the chapter members. I don't know what they do, but all I know is
        they are required in the URL and they change every time you log in. */
-    #CFID = "";;
-    #CFTOKEN = "";;
+    #CFID = "";
+    #CFTOKEN = "";
 
     /****************************************************************************/
     /* login(username, password) method                                         */
@@ -48,17 +53,15 @@ let Chapter = class {
         });
 
         // promise checks if logged in and members loaded into variable
-        const result = new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
                 throw new Error("Login attempt unsuccessful, check login credentials.");
             }
 
-            await this.reloadMembers()
+            this.reloadMembers()
                 .then(() => resolve("Successfully logged in."))
                 .catch(() => reject("ERROR while loading chapter roster."));
         });
-
-        return result;
     }
 
     /****************************************************************************/
@@ -72,17 +75,17 @@ let Chapter = class {
     /* NOTE: This function takes several (5 on avg) seconds to execute due to   */
     /* the load times of ACM servers.                                           */
     /*                                                                          */
-    /* Return Type: prmoise, message and status on success and fail.            */
+    /* Return Type: prmoise, message on fail, updated member list on success.   */
     /****************************************************************************/
     async reloadMembers() {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to load members.");
                 return;
             }
 
             // get request that returns the list of members in the chapter, in a csv format
-            await axios
+            axios
             .get(
                 "https://services.acm.org/public/chapters/loadmembers/view_edit.cfm?CFID=" +
                     this.#CFID +
@@ -97,28 +100,32 @@ let Chapter = class {
             .catch((err) => {
                 reject(err);
                 return;
+            })
+            .finally(() => {
+                // parses and loads members into memberList variables
+                // columns: true enables array of objects
+                this.#memberList = parse(this.#memberList, { columns: [
+                    "memberNumber",
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "affiliation",
+                    "memberType",
+                    "dateAdded",
+                    "expireDate",
+                    "activeMember"
+                ] });
+
+                if (!this.#memberList) {
+                    reject("ERROR parsing member list.");
+                    return;
+                }
+
+                // removing first object because it only contains column names
+                this.#memberList.splice(0, 1);
+
+                resolve(this.#memberList);
             });
-
-            // parses and loads members into memberList variables
-            // columns: true enables array of objects
-            this.#memberList = parse(this.#memberList, { columns: [
-                "memberNumber",
-                "firstName",
-                "lastName",
-                "email",
-                "affiliation",
-                "memberType",
-                "dateAdded",
-                "expireDate",
-                "activeMember"
-            ] });
-
-            if (!this.#memberList) {
-                reject("ERROR parsing member list.");
-                return;
-            }
-
-            resolve(this.#memberList);
 
         });
     }
@@ -204,7 +211,7 @@ let Chapter = class {
     /* Return Type: promise, member obect on success, error message on fail.    */
     /****************************************************************************/
     async getMembersByFirstName(firstName) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
             }
@@ -215,20 +222,11 @@ let Chapter = class {
                 reject("ERROR: Invalid data type, must pass a string.");
             }
             else {
-                let result = [];
-                let tempList = this.#memberList;
-                // sort list by first name, sorts in place so copying original memberlist.
-                await tempList.sort((first, second) => (first["firstName"] > second["firstName"]) ? 1 : -1);
-                // find first occurance of name
-                let start = tempList.findIndex(element => element["firstName"] === firstName);
+                let result = this.#memberList.filter(member => member.firstName === firstName);
 
-                if (start === -1) {
+                if (result.length === 0) {
                     reject("ERROR: No members with the first name, \"" + firstName + "\", were found.");
                     return;
-                }
-
-                for (let i = start; i < tempList.length && tempList[i].firstName == firstName; i++) {
-                    result.push(tempList[i]);
                 }
 
                 resolve(result);
@@ -246,7 +244,7 @@ let Chapter = class {
     /* Return Type: promise, member obect on success, error message on fail.    */
     /****************************************************************************/
     async getMembersByLastName(lastName) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
             }
@@ -257,17 +255,11 @@ let Chapter = class {
                 reject("ERROR: Invalid data type, must pass a string.");
             }
             else {
-                let result = [];
-                // find first occurance of name
-                let start = this.#memberList.findIndex(element => element["lastName"] === lastName);
+                let result = this.#memberList.filter(member => member.lastName === lastName);
 
-                if (start === -1) {
+                if (result.length === 0) {
                     reject("ERROR: No members with the last name, \"" + lastName + "\", were found.");
                     return;
-                }
-
-                for (let i = start; i < this.#memberList.length && this.#memberList[i].lastName == lastName; i++) {
-                    result.push(this.#memberList[i]);
                 }
 
                 resolve(result);
@@ -285,7 +277,7 @@ let Chapter = class {
     /* Return Type: promise, member obect on success, error message on fail.    */
     /****************************************************************************/
     async getMembersByAffiliation(affiliation) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
             }
@@ -296,21 +288,11 @@ let Chapter = class {
                 reject("ERROR: Invalid data type, must pass a string.");
             }
             else {
-                let result = [];
-                let tempList = this.#memberList;
-                // sort list by affiliation, sorts in place, so copying original memberlist.
-                await tempList.sort((first, second) => (first["affiliation"] > second["affiliation"]) ? 1 : -1);
-                // find first occurance of name
-                let start = tempList.findIndex(element => element["affiliation"] === affiliation);
+                let result = this.#memberList.filter(member => member.affiliation === affiliation);
 
-                if (start === -1) {
+                if (result.length === 0) {
                     reject("ERROR: No members with the affiliation, \"" + affiliation + "\", were found.");
                     return;
-                }
-
-                // add all matches to the result variable
-                for (let i = start; i < tempList.length && tempList[i].affiliation == affiliation; i++) {
-                    result.push(tempList[i]);
                 }
 
                 resolve(result);
@@ -329,7 +311,7 @@ let Chapter = class {
     /* Return Type: promise, member obect on success, error message on fail.    */
     /****************************************************************************/
     async getMembersByType(memberType) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
             }
@@ -340,21 +322,11 @@ let Chapter = class {
                 reject("ERROR: Invalid data type, must pass a string.");
             }
             else {
-                let result = [];
-                let tempList = this.#memberList;
-                // sort list by member type, sorts in place, so copying original memberlist.
-                await tempList.sort((first, second) => (first["memberType"] > second["memberType"]) ? 1 : -1);
-                // find first occurance of name
-                let start = tempList.findIndex(element => element["memberType"] === memberType);
+                let result = this.#memberList.filter(member => member.memberType === memberType);
 
-                if (start === -1) {
+                if (result.length === 0) {
                     reject("ERROR: No members with the member type, \"" + memberType + "\", were found.");
                     return;
-                }
-
-                // add all matches to the result variable
-                for (let i = start; i < tempList.length && tempList[i].memberType == memberType; i++) {
-                    result.push(tempList[i]);
                 }
 
                 resolve(result);
@@ -370,29 +342,22 @@ let Chapter = class {
     /*Return Type: promise, member object(s) on success, error message on fail  */
     /****************************************************************************/
     async getActiveMembers() {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
             }
+            else if (this.#acmSubList.length > 0) {
+                resolve(this.#acmSubList.length);
+            }
             else {
-                let result = [];
-                let tempList = this.#memberList;
-                // sort list by member status, sorts in place, so copying original memberlist.
-                await tempList.sort((first, second) => (first["activeMember"] > second["activeMember"]) ? 1 : -1);
-                // find first active member
-                let start = tempList.findIndex(element => element["activeMember"] === "Yes");
+                this.#acmSubList = this.#memberList.filter(member => member.activeMember === "Yes");
 
-                if (start === -1) {
+                if (this.#acmSubList.length === 0) {
                     reject("ERROR: No active members were found. \u2639");
                     return;
                 }
 
-                // add all matches to the result variable
-                for (let i = start; i < tempList.length && tempList[i].activeMember == "Yes"; i++) {
-                    result.push(tempList[i]);
-                }
-
-                resolve(result);
+                resolve(this.#acmSubList);
             }
         });
     }
@@ -405,26 +370,16 @@ let Chapter = class {
     /*Return Type: promise, member object(s) on success, error message on fail  */
     /****************************************************************************/
     async getInactiveMembers() {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
             }
             else {
-                let result = [];
-                let tempList = this.#memberList;
-                // sort list by member status, sorts in place, so copying original memberlist.
-                await tempList.sort((first, second) => (first["activeMember"] < second["activeMember"]) ? 1 : -1);
-                // find first active member
-                let start = tempList.findIndex(element => element["activeMember"] === "No");
+                let result = this.#memberList.filter(member => member.activeMember === "No");
 
-                if (start === -1) {
+                if (result.length === 0) {
                     reject("ERROR: No inactive members were found. \u2639");
                     return;
-                }
-
-                // add all matches to the result variable
-                for (let i = start; i < tempList.length && tempList[i].activeMember == "No"; i++) {
-                    result.push(tempList[i]);
                 }
 
                 resolve(result);
@@ -502,6 +457,98 @@ let Chapter = class {
         }
         else {
             return false;
+        }
+    }
+
+    /****************************************************************************/
+    /* chapterSize() method                                                     */
+    /*                                                                          */
+    /* gets the total number of members in the ACM Chapter.                     */
+    /*                                                                          */
+    /* Return Type: number                                                      */
+    /****************************************************************************/
+    chapterSize() {
+        return this.#memberList.length;
+    }
+
+    /****************************************************************************/
+    /* acmSubSize() method                                                      */
+    /*                                                                          */
+    /* gets the number of chapter members that are ACM subscribers, the ones    */
+    /* that pay 20$ a year.                                                     */
+    /*                                                                          */
+    /* Return Type: number                                                      */
+    /****************************************************************************/
+    acmSubSize() {
+        // if acm subscriber list hasn't been generated already
+        if (this.#acmSubList.length === 0) {
+            // populate the acm subscriber list
+            var count = 0;
+            for (let member of this.#memberList) {
+                if (member.activeMember === "Yes") {
+                    this.#acmSubList.push(member);
+                    count++;
+                }
+            }
+
+            return count;
+        }
+        else {
+            return this.#acmSubList.length;
+        }
+    }
+
+    /****************************************************************************/
+    /* inactiveSize() method                                                    */
+    /*                                                                          */
+    /* gets the number of chapter members that are inactive/expired             */
+    /*                                                                          */
+    /* Return Type: number                                                      */
+    /****************************************************************************/
+    inactiveSize() {
+        if (this.#inactiveList.length > 0) {
+            return this.#inactiveList.length;
+        }
+        else {
+            const present = new Date().toLocaleDateString('sv');
+            var count = 0;
+            for (let member of this.#memberList) {
+                if (member.expireDate < present) {
+                    this.#inactiveList.push(member);
+                    count++;
+                }
+                else {
+                    this.#activeList.push(member);
+                }
+            }
+            return count;
+        }
+    }
+
+    /****************************************************************************/
+    /* activeSize() method                                                      */
+    /*                                                                          */
+    /* gets the number of chapter members that are active/not expired           */
+    /*                                                                          */
+    /* Return Type: number                                                      */
+    /****************************************************************************/
+    activeSize() {
+        if (this.#activeList.length > 0) {
+            return this.#activeList.length;
+        }
+        else {
+            const present = new Date().toLocaleDateString('sv');
+            var count = 0;
+            for (let member of this.#memberList) {
+                if (member.expireDate >= present) {
+                    this.#activeList.push(member);
+                    count++;
+                }
+                else {
+                    this.#inactiveList.push(member);
+                }
+            }
+            return count;
         }
     }
 }
