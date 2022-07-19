@@ -30,6 +30,12 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: promise, error message or updated member list               */
     /****************************************************************************/
+    /**
+     * Log client into the ACM panel to access the student chapter roster.
+     * @param {string} username ACM panel username
+     * @param {string} password ACM panel password
+     * @returns {string} Success or error message
+     */
     async login(username, password) {
         // create new form data needed to log into the admin panel
         const form = new FormData();
@@ -77,6 +83,10 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: prmoise, message on fail, updated member list on success.   */
     /****************************************************************************/
+    /**
+     * Refreshes the chapter roster with most recent data.
+     * @returns {object[]} Updated member list as an array of object(s).
+     */
     async reloadMembers() {
         return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
@@ -103,7 +113,7 @@ let Chapter = class {
             })
             .finally(() => {
                 // parses and loads members into memberList variables
-                // columns: true enables array of objects
+                // columns property enables array of objects
                 this.#memberList = parse(this.#memberList, { columns: [
                     "memberNumber",
                     "firstName",
@@ -138,6 +148,10 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: promise, array of objects on success, error message on fail */
     /****************************************************************************/
+    /**
+     * Retrieves all members within your student chapter.
+     * @returns {object[]} Array of member object(s)
+     */
     async getAllMembers() {
         return new Promise((resolve, reject) => {
             if (this.#loggedIn) {
@@ -158,6 +172,11 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: promise, object with data on success, error message on fail */
     /****************************************************************************/
+    /**
+     * Retrieves member information with a specified ACM ID.
+     * @param {string|number} acmID ACM member ID to search for.
+     * @returns {object} Member object
+     */
     async getMemberByID(acmID) {
         return new Promise ((resolve, reject) => {
             if (!this.#loggedIn) {
@@ -184,6 +203,11 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: promise, object with data on success, error message on fail */
     /****************************************************************************/
+    /**
+     * Retrieves member information associated with a specified email address.
+     * @param {string} email Email address to search for as a string
+     * @returns {object} Member object
+     */
     async getMemberByEmail(email) {
         return new Promise ((resolve, reject) => {
             if (!this.#loggedIn) {
@@ -210,6 +234,11 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: promise, member obect on success, error message on fail.    */
     /****************************************************************************/
+    /**
+     * Retrieves all members with a specified first name.
+     * @param {string} firstName First name to search for as a string
+     * @returns {object[]} Array of member object(s)
+     */
     async getMembersByFirstName(firstName) {
         return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
@@ -243,6 +272,11 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: promise, member obect on success, error message on fail.    */
     /****************************************************************************/
+    /**
+     * Retrieves all members with a specified last name.
+     * @param {string} lastName Last name to search for as a string
+     * @returns {object[]} Array of member object(s)
+     */
     async getMembersByLastName(lastName) {
         return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
@@ -268,39 +302,6 @@ let Chapter = class {
     }
 
     /****************************************************************************/
-    /* getMembersByAffiliation(affiliation) method                              */
-    /*                                                                          */
-    /* The getMembersByAffiliation() method retrieves all chapter members with  */
-    /* the affiliation that is specified in the function argument. Must pass a  */
-    /* string as an argument and must be logged in.                             */
-    /*                                                                          */
-    /* Return Type: promise, member obect on success, error message on fail.    */
-    /****************************************************************************/
-    async getMembersByAffiliation(affiliation) {
-        return new Promise((resolve, reject) => {
-            if (!this.#loggedIn) {
-                reject("ERROR: Must be logged in to fetch member data");
-            }
-            else if(!affiliation) {
-                reject("ERROR: Must pass an affiliation to search for.");
-            }
-            else if(typeof(affiliation) !== "string") {
-                reject("ERROR: Invalid data type, must pass a string.");
-            }
-            else {
-                let result = this.#memberList.filter(member => member.affiliation === affiliation);
-
-                if (result.length === 0) {
-                    reject("ERROR: No members with the affiliation, \"" + affiliation + "\", were found.");
-                    return;
-                }
-
-                resolve(result);
-            }
-        });
-    }
-
-    /****************************************************************************/
     /* getMembersByType(memberType) method                                      */
     /*                                                                          */
     /* The getMembersByType() method retrieves all chapter members with         */
@@ -310,6 +311,12 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: promise, member obect on success, error message on fail.    */
     /****************************************************************************/
+    /**
+     * Retrieves all members by a specific membership type.
+     * @param {string} memberType Member type as string. E.g, Chapter Member, Chair,
+     *  Vice Chair, Treasurer, Secretary, Faculty Sponsor.
+     * @returns {object[]} Array of member object(s)
+     */
     async getMembersByType(memberType) {
         return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
@@ -341,6 +348,10 @@ let Chapter = class {
     /*                                                                          */
     /*Return Type: promise, member object(s) on success, error message on fail  */
     /****************************************************************************/
+    /**
+     * Retrieves all members with an ACM subscription.
+     * @returns {object[]} Array of member object(s)
+     */
     async getActiveMembers() {
         return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
@@ -369,6 +380,10 @@ let Chapter = class {
     /*                                                                          */
     /*Return Type: promise, member object(s) on success, error message on fail  */
     /****************************************************************************/
+    /**
+     * Retrieves all members not subscibed to ACM.
+     * @returns {object[]} Array of member object(s)
+     */
     async getInactiveMembers() {
         return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
@@ -395,8 +410,14 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: Boolean, true if they are a member, false otherwise         */
     /****************************************************************************/
+    /**
+     * Determines if a member is registered with your chapter.
+     * @param {(string|number|object)} id A member object or an ACM ID as string/number
+     * @returns {boolean} Boolean
+     */
     isMember(id) {
-        if (typeof id === "object") {
+        if (!id) return false;
+        else if (typeof id === "object") {
             if (id == null) return false;
 			id = id.memberNumber;
 		}
@@ -420,8 +441,14 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: Boolean, true if they are a member, false otherwise         */
     /****************************************************************************/
+    /**
+     * Determines if a member has an active ACM subscription.
+     * @param {(string|number|object)} id A member object or an ACM ID as string/number
+     * @returns {boolean} Boolean
+     */
     isActiveMember(id) {
-        if (typeof id === "object") {
+        if (!id) return false;
+        else if (typeof id === "object") {
             if (id == null) return false;
 			id = id.memberNumber;
 		}
@@ -444,6 +471,11 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: Boolean, true if they are a member, false otherwise         */
     /****************************************************************************/
+    /**
+     * Determines if member is an officer of the chapter.
+     * @param {(string|number|object)} id A member object or an ACM ID as string/number
+     * @returns {boolean} Boolean
+     */
     isOfficer(id) {
         if (typeof id === "object") {
             if (id == null) return false;
@@ -467,6 +499,10 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: number                                                      */
     /****************************************************************************/
+    /**
+     * Returns the total number of chapter members.
+     * @returns {number} number
+     */
     chapterSize() {
         return this.#memberList.length;
     }
@@ -479,6 +515,10 @@ let Chapter = class {
     /*                                                                          */
     /* Return Type: number                                                      */
     /****************************************************************************/
+    /**
+     * Returns the number of chapter members suscribed to ACM.
+     * @returns {number} number
+     */
     acmSubSize() {
         // if acm subscriber list hasn't been generated already
         if (this.#acmSubList.length === 0) {
@@ -498,13 +538,10 @@ let Chapter = class {
         }
     }
 
-    /****************************************************************************/
-    /* inactiveSize() method                                                    */
-    /*                                                                          */
-    /* gets the number of chapter members that are inactive/expired             */
-    /*                                                                          */
-    /* Return Type: number                                                      */
-    /****************************************************************************/
+    /**
+     * Returns the number of inactive/expired chapter members.
+     * @returns {number} number
+     */
     inactiveSize() {
         if (this.#inactiveList.length > 0) {
             return this.#inactiveList.length;
@@ -525,13 +562,10 @@ let Chapter = class {
         }
     }
 
-    /****************************************************************************/
-    /* activeSize() method                                                      */
-    /*                                                                          */
-    /* gets the number of chapter members that are active/not expired           */
-    /*                                                                          */
-    /* Return Type: number                                                      */
-    /****************************************************************************/
+    /**
+     * Returns the number of active/non-expired chapter members.
+     * @returns {number} number
+     */
     activeSize() {
         if (this.#activeList.length > 0) {
             return this.#activeList.length;
