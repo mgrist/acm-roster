@@ -418,16 +418,19 @@ let Chapter = class {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
             }
+            else if (this.#activeList.length > 0) {
+                return this.#activeList;
+            }
             else {
                 const present = new Date().toLocaleDateString('sv');
-                let result = this.#memberList.filter(member => member.expireDate > present);
+                this.#activeList = this.#memberList.filter(member => member.expireDate > present);
 
-                if (result.length === 0) {
+                if (this.#activeList.length === 0) {
                     reject("ERROR: No current members were found. \u2639");
                     return;
                 }
 
-                resolve(result);
+                resolve(this.#activeList);
             }
         });
     }
@@ -448,16 +451,19 @@ let Chapter = class {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
             }
+            else if (this.#inactiveList.length > 0) {
+                return this.#inactiveList;
+            }
             else {
                 const present = new Date().toLocaleDateString('sv');
-                let result = this.#memberList.filter(member => member.expireDate <= present);
+                this.#inactiveList = this.#memberList.filter(member => member.expireDate <= present);
 
-                if (result.length === 0) {
+                if (this.#inactiveList.length === 0) {
                     reject("ERROR: No expired members were found.");
                     return;
                 }
 
-                resolve(result);
+                resolve(this.#inactiveList);
             }
         });
     }
