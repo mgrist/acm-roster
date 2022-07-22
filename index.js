@@ -342,9 +342,9 @@ let Chapter = class {
     }
 
     /****************************************************************************/
-    /* getActiveMembers() method                                                */
+    /* getSubscribers() method                                                  */
     /*                                                                          */
-    /* getActiveMembers() retrievs all active ACM members within your chapter.  */
+    /* getSubscribers() retrievs all active ACM members within your chapter.    */
     /*                                                                          */
     /*Return Type: promise, member object(s) on success, error message on fail  */
     /****************************************************************************/
@@ -352,7 +352,7 @@ let Chapter = class {
      * Retrieves all members with an ACM subscription.
      * @returns {object[]} Array of member object(s)
      */
-    async getActiveMembers() {
+    async getSubscribers() {
         return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
@@ -374,9 +374,9 @@ let Chapter = class {
     }
 
     /****************************************************************************/
-    /* getInactiveMembers() method                                              */
+    /* getNonSubscribers() method                                              */
     /*                                                                          */
-    /* getInactiveMembers() retrievs all inactive ACM members in your chapter.  */
+    /* getNonSubscribers() retrievs all inactive ACM members in your chapter.  */
     /*                                                                          */
     /*Return Type: promise, member object(s) on success, error message on fail  */
     /****************************************************************************/
@@ -384,7 +384,7 @@ let Chapter = class {
      * Retrieves all members not subscibed to ACM.
      * @returns {object[]} Array of member object(s)
      */
-    async getInactiveMembers() {
+    async getNonSubscibers() {
         return new Promise((resolve, reject) => {
             if (!this.#loggedIn) {
                 reject("ERROR: Must be logged in to fetch member data");
