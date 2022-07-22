@@ -66,8 +66,8 @@ To see more details on the method, such as the return type and input parameters,
 * `getMembersByLastName` - Retrieves all members with a specific last name.
 * `getMembersByAffiliation` - Retrieves all members that belong to a specific affiliation, such as Angelo State University.
 * `getMembersByType` - Retrieves all members of a specific type. Types can include Chapter Member, Secretary, Treasurer, Vice Chair, Chair, Faculty Sponsor, or any other chapter roles you may have created.
-* `getActiveMembers` - Retrieves all members with an active ACM membership.
-* `getInactiveMembers` - Retrieves all members that do not have an active ACM membership.
+* `getSubscribers` - Retrieves all members with an active ACM membership.
+* `getNonSubscribers` - Retrieves all members that do not have an active ACM membership.
 * `isMember` - Determines if a user is a registered member of your chapter.
 * `isActiveMember` - Determines if a user is an active ACM Member.
 * `isOfficer` - Determines if a user is an Officer of the Club. Typically, the Club Officers consist of the Secretary, Treasurer, Vice Chair, and Chair. It is possible to add more officer positions through ACM (such as Web Master).
