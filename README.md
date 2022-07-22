@@ -74,7 +74,7 @@ To see more details on the method, such as the return type and input parameters,
 
 
 ## How it works
-1. The script begins by supplying your login credentials to a form, and the form is sent in a post request using x-www-form-urlencoding to the ACM host url. This will log you into the ACM admin panel.
+1. The script begins by supplying your login credentials to a x-www-form-urlencoded, and the form is sent in a post request to the ACM host url. This will log you into the ACM admin panel.
 
 2. Upon successfully logging into the admin panel, a CFID and CFTOKEN are given in the response of the post request, which are required for the roster retrieval API.
 
