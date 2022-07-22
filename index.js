@@ -374,9 +374,9 @@ let Chapter = class {
     }
 
     /****************************************************************************/
-    /* getNonSubscribers() method                                              */
+    /* getNonSubscribers() method                                               */
     /*                                                                          */
-    /* getNonSubscribers() retrievs all inactive ACM members in your chapter.  */
+    /* getNonSubscribers() retrievs all inactive ACM members in your chapter.   */
     /*                                                                          */
     /*Return Type: promise, member object(s) on success, error message on fail  */
     /****************************************************************************/
@@ -394,6 +394,66 @@ let Chapter = class {
 
                 if (result.length === 0) {
                     reject("ERROR: No inactive members were found. \u2639");
+                    return;
+                }
+
+                resolve(result);
+            }
+        });
+    }
+
+    /****************************************************************************/
+    /* getCurrentMembers() method                                               */
+    /*                                                                          */
+    /* getCurrentMembers() retrievs active chapter members that are not expired.*/
+    /*                                                                          */
+    /*Return Type: promise, member object(s) on success, error message on fail  */
+    /****************************************************************************/
+    /**
+     * Retrieves current, nonexpired members.
+     * @returns {object[]} Array of member object(s)
+     */
+     async getCurrentMembers() {
+        return new Promise((resolve, reject) => {
+            if (!this.#loggedIn) {
+                reject("ERROR: Must be logged in to fetch member data");
+            }
+            else {
+                const present = new Date().toLocaleDateString('sv');
+                let result = this.#memberList.filter(member => member.expireDate > present);
+
+                if (result.length === 0) {
+                    reject("ERROR: No current members were found. \u2639");
+                    return;
+                }
+
+                resolve(result);
+            }
+        });
+    }
+
+    /****************************************************************************/
+    /* getExpiredMembers() method                                               */
+    /*                                                                          */
+    /* getExpiredMembers() retrievs inactive chapter members that are expired.  */
+    /*                                                                          */
+    /*Return Type: promise, member object(s) on success, error message on fail  */
+    /****************************************************************************/
+    /**
+     * Retrieves inactive, expired members.
+     * @returns {object[]} Array of member object(s)
+     */
+     async getExpiredMembers() {
+        return new Promise((resolve, reject) => {
+            if (!this.#loggedIn) {
+                reject("ERROR: Must be logged in to fetch member data");
+            }
+            else {
+                const present = new Date().toLocaleDateString('sv');
+                let result = this.#memberList.filter(member => member.expireDate <= present);
+
+                if (result.length === 0) {
+                    reject("ERROR: No expired members were found.");
                     return;
                 }
 
