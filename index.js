@@ -106,6 +106,9 @@ let Chapter = class {
             .then((res) => {
                 //storing csv data in variable as a string...
                 this.#memberList = res.data;
+                this.#acmSubList = [];
+                this.#activeList = [];
+                this.#inactiveList = [];
             })
             .catch((err) => {
                 reject(err);
@@ -131,7 +134,7 @@ let Chapter = class {
                     return;
                 }
 
-                // removing first object because it only contains column names
+                // removing first object because it contains column headers
                 this.#memberList.splice(0, 1);
 
                 resolve(this.#memberList);
@@ -251,6 +254,7 @@ let Chapter = class {
                 reject("ERROR: Invalid data type, must pass a string.");
             }
             else {
+                firstName[0] = firstName[0].toUpperCase();
                 let result = this.#memberList.filter(member => member.firstName === firstName);
 
                 if (result.length === 0) {
@@ -289,6 +293,7 @@ let Chapter = class {
                 reject("ERROR: Invalid data type, must pass a string.");
             }
             else {
+                lastName[0] = lastName[0].toUpperCase();
                 let result = this.#memberList.filter(member => member.lastName === lastName);
 
                 if (result.length === 0) {
