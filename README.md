@@ -12,7 +12,7 @@ Dependencies:
 1. To log your client in, you need the ACM Administrator Panel **username and password** for your chapter.
 2. When logging in to the ACM panel with the client, it is strongly recommended that you **do not enter your username and password as inline plaintext.** An alternative is to use a `.json` or `.env` file to hold your username and password, import the data fields, and add the file to `.gitignore`.
 3. You must log in before using the other methods.
-4. All package methods are asynchronous and return promises, except the "is" functions (e.g. isOfficer(), isMember(), isActiveMember()).  
+4. All package methods are asynchronous and return promises, except the "is" methods (e.g. isOfficer(), isMember(), isActiveMember()) and "size" methods (e.g. chapterSize(), acmSubSize()).  
 5. The login() and reloadMembers() methods take several seconds (5 on average) to execute.
 
 ## Installation
