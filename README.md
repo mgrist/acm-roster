@@ -54,7 +54,7 @@ client.login("acm-username", "acm-password").then((res) => {
     console.log(res);
 	
     // get all members with active membership
-    const activeMembers = client.getActiveMembers();
+    const activeMembers = client.getCurrentMembers();
     console.log(activeMembers);
 });
 ```
