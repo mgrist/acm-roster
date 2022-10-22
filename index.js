@@ -200,8 +200,8 @@ let Chapter = class {
 
   /**
    * Retrieves member information with a specified ACM ID.
-   * @param {string|number} acmID ACM member ID to search for.
-   * @returns {object} Member object
+   * @param {string | number} acmID ACM member ID to search for.
+   * @returns {object | undefined} Member object
    */
   async getMemberByID(acmID) {
     return new Promise((resolve, reject) => {
@@ -222,7 +222,7 @@ let Chapter = class {
   /**
    * Retrieves member information associated with a specified email address.
    * @param {string} email Email address to search for as a string
-   * @returns {object} Member object
+   * @returns {object | undefined} Member object
    */
   getMemberByEmail(email) {
     return new Promise((resolve, reject) => {
@@ -252,6 +252,7 @@ let Chapter = class {
       } else if (typeof firstName !== "string") {
         reject("ERROR: Invalid data type, must pass a string.");
       } else {
+        firstName = firstName.toLowerCase();
         firstName[0] = firstName[0].toUpperCase();
         let result = this.#memberList.filter(
           (member) => member.firstName === firstName
@@ -276,6 +277,7 @@ let Chapter = class {
       } else if (typeof lastName !== "string") {
         reject("ERROR: Invalid data type, must pass a string.");
       } else {
+        lastName = lastName.toLowerCase();
         lastName[0] = lastName[0].toUpperCase();
         let result = this.#memberList.filter(
           (member) => member.lastName === lastName
