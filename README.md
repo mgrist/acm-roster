@@ -3,6 +3,11 @@ acm-roster is an npm ([node.js](https://nodejs.org/en/)) package that fetches th
 
 Typescript declarations are not yet included.
 
+Dependencies:
+* axios
+* crypto
+* csv-parse
+
 ## What you need to know
 1. To log your client in, you need the ACM Administrator Panel **username and password** for your chapter.
 2. When logging in to the ACM panel with the client, it is strongly recommended that you **do not enter your username and password as inline plaintext.** An alternative is to use a `.json` or `.env` file to hold your username and password, import the data fields, and add the file to `.gitignore`.
