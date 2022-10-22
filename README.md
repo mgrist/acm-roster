@@ -12,7 +12,7 @@ Dependencies:
 1. To log your client in, you need the ACM Administrator Panel **username and password** for your chapter.
 2. When logging in to the ACM panel with the client, it is strongly recommended that you **do not enter your username and password as inline plaintext.** An alternative is to use a `.json` or `.env` file to hold your username and password, import the data fields, and add the file to `.gitignore`.
 3. You must log in before using the other methods.
-4. All package methods are asynchronous and return promises, except the "is" functions (e.g. isOfficer(), isMember(), isActiveMember()).  
+4. All package methods are asynchronous and return promises, except the "is" methods (e.g. isOfficer(), isMember(), isActiveMember()) and "size" methods (e.g. chapterSize(), acmSubSize()).  
 5. The login() and reloadMembers() methods take several seconds (5 on average) to execute.
 
 ## Installation
@@ -28,20 +28,16 @@ const Chapter = require("acm-roster");
 async function main() {
     // creating new client
     const client = new Chapter();
+    try {
+      // log in to chapters ACM account
+      await client.login("acm-username", "acm-password");
 
-    // log in to chapters ACM account
-    await client.login("acm-username", "acm-password")
-        .then((res) => console.log(res))
-	.catch((err) => console.error(err));
-
-    // retrives Treasurer member data
-    await client.getMembersByType("Treasurer")
-        .then ((res) => {
-		let fname = res[0].firstName;
-		let lname = res[0].lastName;
-		console.log(`${fname} ${lname} is the clubs Treasurer.`);
-	})
-	.catch((err) => console.error(err));
+      // retrives Treasurer member data
+      const treasurer = client.getMembersByType("Treasurer");
+      console.log(`${treasurer.firstName} ${treasurer.lastName} is the clubs Treasurer.`);
+    } catch (err) {
+      throw err;
+    }
 }
 ```
 
@@ -53,12 +49,12 @@ const Chapter = require("acm-roster");
 const client = new Chapter();
 
 // log in to chapters ACM account with client
-client.login("acm-username", "acm-password").then((async () => {
-    let activeMembers = [];	
-		
-    // get all members with active membership
-    activeMembers = await client.getActiveMembers();
+client.login("acm-username", "acm-password").then((res) => {
+    // initial login method returns full member list
+    console.log(res);
 	
+    // get all members with active membership
+    const activeMembers = client.getCurrentMembers();
     console.log(activeMembers);
 });
 ```
