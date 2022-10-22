@@ -34,7 +34,7 @@ async function main() {
 
       // retrives Treasurer member data
       const treasurer = client.getMembersByType("Treasurer");
-      console.log(`${treasurer.fname} ${treasurer.lname} is the clubs Treasurer.`);
+      console.log(`${treasurer.firstName} ${treasurer.lastName} is the clubs Treasurer.`);
     } catch (err) {
       throw err;
     }
