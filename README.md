@@ -28,20 +28,16 @@ const Chapter = require("acm-roster");
 async function main() {
     // creating new client
     const client = new Chapter();
+    try {
+      // log in to chapters ACM account
+      await client.login("acm-username", "acm-password");
 
-    // log in to chapters ACM account
-    await client.login("acm-username", "acm-password")
-        .then((res) => console.log(res))
-	.catch((err) => console.error(err));
-
-    // retrives Treasurer member data
-    await client.getMembersByType("Treasurer")
-        .then ((res) => {
-		let fname = res[0].firstName;
-		let lname = res[0].lastName;
-		console.log(`${fname} ${lname} is the clubs Treasurer.`);
-	})
-	.catch((err) => console.error(err));
+      // retrives Treasurer member data
+      const treasurer = client.getMembersByType("Treasurer");
+      console.log(`${treasurer.fname} ${treasurer.lname} is the clubs Treasurer.`);
+    } catch (err) {
+      throw err;
+    }
 }
 ```
 
@@ -53,12 +49,12 @@ const Chapter = require("acm-roster");
 const client = new Chapter();
 
 // log in to chapters ACM account with client
-client.login("acm-username", "acm-password").then((async () => {
-    let activeMembers = [];	
-		
-    // get all members with active membership
-    activeMembers = await client.getActiveMembers();
+client.login("acm-username", "acm-password").then((res) => {
+    // initial login method returns full member list
+    console.log(res);
 	
+    // get all members with active membership
+    const activeMembers = client.getActiveMembers();
     console.log(activeMembers);
 });
 ```
