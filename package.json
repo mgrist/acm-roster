@@ -4,9 +4,8 @@
   "description": "Fetches member data from ACM Admin Panel",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "lint:check": "eslint .",
-		"lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix ."
   },
   "repository": {
     "type": "git",
@@ -28,7 +27,10 @@
   "homepage": "https://github.com/mgrist/acm-roster#readme",
   "dependencies": {
     "axios": "^0.27.2",
-    "csv-parse": "^5.2.0",
-    "eslint": "^8.20.0"
+    "crypto": "^1.0.1",
+    "csv-parse": "^5.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.26.0"
   }
 }
