@@ -1,6 +1,13 @@
 # acm-roster
 acm-roster is an npm ([node.js](https://nodejs.org/en/)) package that fetches the roster data of an ACM Student Chapter. This is intended to be used by ACM Student Chapters that need to access their chapter members data for use in their applications. The script provides the member number, first name, last name, e-mail, affiliation, membership type, date added, expiration date, and ACM membership status for all current chapter members.
 
+Typescript declarations are not yet included.
+
+Dependencies:
+* axios
+* crypto
+* csv-parse
+
 ## What you need to know
 1. To log your client in, you need the ACM Administrator Panel **username and password** for your chapter.
 2. When logging in to the ACM panel with the client, it is strongly recommended that you **do not enter your username and password as inline plaintext.** An alternative is to use a `.json` or `.env` file to hold your username and password, import the data fields, and add the file to `.gitignore`.
@@ -74,7 +81,7 @@ To see more details on the method, such as the return type and input parameters,
 
 
 ## How it works
-1. The script begins by supplying your login credentials to a form, and the form is sent in a post request using x-www-form-urlencoding to the ACM host url. This will log you into the ACM admin panel.
+1. The script begins by supplying your login credentials to a x-www-form-urlencoded, and the form is sent in a post request to the ACM host url. This will log you into the ACM admin panel.
 
 2. Upon successfully logging into the admin panel, a CFID and CFTOKEN are given in the response of the post request, which are required for the roster retrieval API.
 
