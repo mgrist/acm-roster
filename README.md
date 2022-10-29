@@ -60,20 +60,21 @@ client.login("acm-username", "acm-password").then((res) => {
 ```
 ## Available Methods
 To see more details on the method, such as the return type and input parameters, click the method name or [visit the Wiki](https://github.com/mgrist/acm-roster/wiki).
-* [`login`](https://github.com/mgrist/acm-roster/wiki/login()) - Logs your client in to ACM Panel to access your chapters roster data.
-* [`reloadMembers`](https://github.com/mgrist/acm-roster/wiki/reloadMembers()) - Updates member list with the most recent roster data. Used when changes have been made to the roster and you want to refresh the members.
-* [`getAllMembers`](https://github.com/mgrist/acm-roster/wiki/getAllMembers()) - Retrieves the entire list of members from your chapter.
-* `getMemberByID` - Fetches a members data based on a specific ACM ID.
-* `getMemberByEmail` - Searches roster for members with a certain email address.
-* `getMembersByFristName` - Retrieves all members with a specific first name.
-* `getMembersByLastName` - Retrieves all members with a specific last name.
-* `getMembersByAffiliation` - Retrieves all members that belong to a specific affiliation, such as Angelo State University.
-* `getMembersByType` - Retrieves all members of a specific type. Types can include Chapter Member, Secretary, Treasurer, Vice Chair, Chair, Faculty Sponsor, or any other chapter roles you may have created.
-* `getSubscribers` - Retrieves all members with an active ACM membership.
-* `getNonSubscribers` - Retrieves all members that do not have an active ACM membership.
-* `isMember` - Determines if a user is a registered member of your chapter.
-* `isActiveMember` - Determines if a user is an active ACM Member.
-* `isOfficer` - Determines if a user is an Officer of the Club. Typically, the Club Officers consist of the Secretary, Treasurer, Vice Chair, and Chair. It is possible to add more officer positions through ACM (such as Web Master).
+* [`login`](https://github.com/mgrist/acm-roster/wiki/login) - Logs your client into ACM Panel to access your chapter roster data.
+* [`reloadMembers`](https://github.com/mgrist/acm-roster/wiki/reloadMembers) - Updates member list with the most recent roster data. Used when changes have been made to the roster and you want to refresh the members.
+* [`getAllMembers`](https://github.com/mgrist/acm-roster/wiki/getAllMembers) - Retrieves the entire list of members from your chapter.
+* [`getMemberByID`](https://github.com/mgrist/acm-roster/wiki/getMemberById) - Fetches a members data based on a specific ACM ID.
+* [`getMemberByEmail`](https://github.com/mgrist/acm-roster/wiki/getMemberByEmail) - Searches roster for members with a certain email address.
+* [`getMembersByFirstName`](https://github.com/mgrist/acm-roster/wiki/getMembersByFirstName) - Retrieves all members with a specific first name.
+* [`getMembersByLastName`](https://github.com/mgrist/acm-roster/wiki/getMembersByLastName) - Retrieves all members with a specific last name.
+* [`getMembersByType`](https://github.com/mgrist/acm-roster/wiki/getMembersByType) - Retrieves all members of a specific type. Types can include Chapter Member, Secretary, Treasurer, Vice Chair, Chair, Faculty Sponsor, or any other chapter roles you may have created.
+* [`getSubscribers`](https://github.com/mgrist/acm-roster/wiki/getSubscribers) - Retrieves all members with an ACM Subscription.
+* [`getNonSubscribers`](https://github.com/mgrist/acm-roster/wiki/getNonSubscribers) - Retrieves all members that do not have an active ACM subscription.
+* [`getCurrentMembers`]() - Retrieves active members of the club, that are non-expired.
+* [`getExpiredMembers`]() - Retrieves inactive members of the club, that are expired.
+* [`isMember`]() - Determines if a user is a registered member of your chapter.
+* [`isActiveMember`]() - Determines if a user is an active ACM Member.
+* [`isOfficer`]() - Determines if a user is an Officer of the Club. Typically, the Club Officers consist of the Secretary, Treasurer, Vice Chair, and Chair. It is possible to add more officer positions through ACM (such as Web Master).
 
 
 ## How it works
