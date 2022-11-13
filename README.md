@@ -91,4 +91,3 @@ You can find [the documentation here](https://github.com/mgrist/acm-roster/wiki)
 
 ## Contact
 [![email-svg](https://img.shields.io/badge/email-matthewgrist0311%40gmail.com-red?style=flat&logo=gmail)](mailto:matthewgrist0311@gmail.com)<br>
-Copyright (c) 2022 Matthew Grist
