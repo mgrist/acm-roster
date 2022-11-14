@@ -12,7 +12,7 @@ Dependencies:
 2. When logging in to the ACM panel with the client, it is strongly recommended that you **do not enter your username and password as inline plaintext.** An alternative is to use a `.json` or `.env` file to hold your username and password, import the data fields, and add the file to `.gitignore`.
 3. You must log in before using the other methods.
 4. All package methods are asynchronous and return promises, except the "is" methods (e.g. isOfficer(), isMember(), isActiveMember()) and "size" methods (e.g. chapterSize(), acmSubSize()).  
-5. The login() and reloadMembers() methods take several seconds (5 on average) to execute.
+5. The login() and refreshRoster() methods take several seconds (5 on average) to execute.
 
 ## Installation
 Run the command `npm install acm-roster` to add this package to your project.
@@ -60,7 +60,7 @@ client.login("acm-username", "acm-password").then((res) => {
 ## Available Methods
 To see more details on the method, such as the return type and input parameters, click the method name or [visit the Wiki](https://github.com/mgrist/acm-roster/wiki).
 * [`login`](https://github.com/mgrist/acm-roster/wiki/login) - Logs your client into ACM Panel to access your chapter roster data.
-* [`reloadMembers`](https://github.com/mgrist/acm-roster/wiki/reloadMembers) - Updates member list with the most recent roster data. Used when changes have been made to the roster and you want to refresh the members.
+* [`refreshRoster`](https://github.com/mgrist/acm-roster/wiki/refreshRoster) - Updates member list with the most recent roster data. Used when changes have been made to the roster and you want to refresh the members.
 * [`getAllMembers`](https://github.com/mgrist/acm-roster/wiki/getAllMembers) - Retrieves the entire list of members from your chapter.
 * [`getMemberByID`](https://github.com/mgrist/acm-roster/wiki/getMemberById) - Fetches a members data based on a specific ACM ID.
 * [`getMemberByEmail`](https://github.com/mgrist/acm-roster/wiki/getMemberByEmail) - Searches roster for members with a certain email address.
