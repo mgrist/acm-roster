@@ -71,12 +71,15 @@ To see more details on the method, such as the return type and input parameters,
 * [`getMembersByType`](https://github.com/mgrist/acm-roster/wiki/getMembersByType) - Retrieves all members of a specific type. Types can include Chapter Member, Secretary, Treasurer, Vice Chair, Chair, Faculty Sponsor, or any other chapter roles you may have created.
 * [`getSubscribers`](https://github.com/mgrist/acm-roster/wiki/getSubscribers) - Retrieves all members with an ACM Subscription.
 * [`getNonSubscribers`](https://github.com/mgrist/acm-roster/wiki/getNonSubscribers) - Retrieves all members that do not have an active ACM subscription.
-* [`getCurrentMembers`]() - Retrieves active members of the club, that are non-expired.
-* [`getExpiredMembers`]() - Retrieves inactive members of the club, that are expired.
-* [`isMember`]() - Determines if a user is a registered member of your chapter.
-* [`isActiveMember`]() - Determines if a user is an active ACM Member.
-* [`isOfficer`]() - Determines if a user is an Officer of the Club. Typically, the Club Officers consist of the Secretary, Treasurer, Vice Chair, and Chair. It is possible to add more officer positions through ACM (such as Web Master).
-
+* [`getCurrentMembers`](https://github.com/mgrist/acm-roster/wiki/getCurrentMembers) - Retrieves active members of the club, that are non-expired.
+* [`getExpiredMembers`](https://github.com/mgrist/acm-roster/wiki/getExpiredMembers) - Retrieves inactive members of the club, that are expired.
+* [`isMember`](https://github.com/mgrist/acm-roster/wiki/isMember) - Determines if a user is a registered member of your chapter.
+* [`isActiveMember`](https://github.com/mgrist/acm-roster/wiki/isActiveMember) - Determines if a user is an active ACM Member.
+* [`isOfficer`](https://github.com/mgrist/acm-roster/wiki/isOfficer) - Determines if a user is an Officer of the Club. Typically, the Club Officers consist of the Secretary, Treasurer, Vice Chair, and Chair. It is possible to add more officer positions through ACM (such as Web Master).
+* [`chapterSize`](https://github.com/mgrist/acm-roster/wiki/chapterSize) - Returns the total number of chapter members.
+* [`acmSubSize`](https://github.com/mgrist/acm-roster/wiki/acmSubSize) - Returns the number of chapter members subscribed to ACM.
+* [`inactiveSize`](https://github.com/mgrist/acm-roster/wiki/inactiveSize) - Returns the number of inactive/expired chapter members.
+* [`activeSize`](https://github.com/mgrist/acm-roster/wiki/activeSize) - Returns the number of active/non-expired chapter members.
 
 ## How it works
 1. The script begins by supplying your login credentials to a x-www-form-urlencoded, and the form is sent in a post request to the ACM host url. This will log you into the ACM admin panel.
