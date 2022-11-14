@@ -27,7 +27,7 @@ let Chapter = class {
   #algorithm = "aes-256-cbc";
 
   #encrypt(message) {
-    if (this.#initVector === "" && this.#secretKey === "") {
+    if (!this.#initVector && !this.#secretKey) {
       // generate 16 bytes of random data
       this.#initVector = crypto.randomBytes(16);
       // secret key generate 32 bytes of random data
@@ -35,7 +35,11 @@ let Chapter = class {
     }
 
     // the cipher function
-    const cipher = crypto.createCipheriv(this.#algorithm, this.#secretKey, this.#initVector);
+    const cipher = crypto.createCipheriv(
+      this.#algorithm,
+      this.#secretKey,
+      this.#initVector
+    );
     let encryptedData = cipher.update(message, "utf-8", "hex");
     encryptedData += cipher.final("hex");
 
@@ -64,8 +68,8 @@ let Chapter = class {
   /*                                                                          */
   /* After logging in, the student roster is preemptively loaded into the     */
   /* memberList variable. This is so that methods can be called without having*/
-  /* to first call the reloadMembers() method. However, if the user wants to  */
-  /* ensure the member list is up-to-date, reloadMembers() must be called.    */
+  /* to first call the loadMembers() method. However, if the user wants to    */
+  /* ensure the member list is up-to-date, loadMembers() must be called.      */
   /*                                                                          */
   /* Return Type: promise, error message or updated member list               */
   /****************************************************************************/
@@ -73,7 +77,7 @@ let Chapter = class {
    * Log client into the ACM panel to access the student chapter roster.
    * @param {string} username ACM panel username
    * @param {string} password ACM panel password
-   * @returns {string} Success or error message
+   * @returns {Promise<object[] | string>} Member list or error message
    */
   async login(username, password) {
     // create new form data needed to log into the admin panel
@@ -100,17 +104,80 @@ let Chapter = class {
         }
       });
 
-    if (!this.#loggedIn) {
-      throw new Error("Login attempt unsuccessful, check login credentials.");
-    }
+    return new Promise((resolve, reject) => {
+      if (!this.#loggedIn) {
+        reject("Login attempt unsuccessful, check login credentials.");
+      }
 
-    return this.reloadMembers().promise();
+      this.#loadMembers()
+        .then(() => resolve(this.#memberList))
+        .catch((err) => reject(err));
+    });
+  }
+
+  /**
+   * Refreshes the chapter roster with most recent data.
+   * @returns {Promise<object[] | string>} Updated member list as an array of object(s).
+   */
+  async #loadMembers() {
+    return new Promise((resolve, reject) => {
+      if (!this.#loggedIn) {
+        reject("ERROR: Must be logged in to load members.");
+        return;
+      }
+
+      // get request that returns the list of members in the chapter, in a csv format
+      axios
+        .get(
+          "https://services.acm.org/public/chapters/loadmembers/view_edit.cfm?CFID=" +
+            this.#CFID +
+            "&CFTOKEN=" +
+            this.#CFTOKEN +
+            "&mcsv=y&expfilter=x"
+        )
+        .then((res) => {
+          //storing csv data in variable as a string...
+          this.#memberList = res.data;
+          this.#acmSubList = [];
+          this.#activeList = [];
+          this.#inactiveList = [];
+        })
+        .catch((err) => {
+          reject(err);
+          return;
+        })
+        .finally(() => {
+          // parses and loads members into memberList variables
+          // columns property enables array of objects
+          this.#memberList = parse(this.#memberList, {
+            columns: [
+              "memberNumber",
+              "firstName",
+              "lastName",
+              "email",
+              "affiliation",
+              "memberType",
+              "dateAdded",
+              "expireDate",
+              "activeMember"
+            ],
+            from_line: 2
+          });
+
+          if (!this.#memberList) {
+            reject("Parser Error: Error parsing member list.");
+            return;
+          }
+
+          resolve(this.#memberList);
+        });
+    });
   }
 
   /****************************************************************************/
-  /* reloadMembers() method                                                   */
+  /* refreshRoster() method                                                   */
   /*                                                                          */
-  /* The reloadMembers() method updates the memberList with the most recent   */
+  /* The refreshRoster() method updates the memberList with the most recent   */
   /* roster data. This is to be used when recent changes have been made       */
   /* to the roster and you want to update the memberList data to ensure it's  */
   /* up-to-date.                                                              */
@@ -122,80 +189,38 @@ let Chapter = class {
   /****************************************************************************/
   /**
    * Refreshes the chapter roster with most recent data.
-   * @returns {object[]} Updated member list as an array of object(s).
+   * @returns {Promise<object[] | string>} Updated member list as an array of object(s) or error.
    */
-  async reloadMembers() {
-    if (!this.#loggedIn) {
-      throw new Error("ERROR: Must be logged in to load members.");
-    }
+  async refreshRoster() {
+    return new Promise((resolve, reject) => {
+      if (!this.#loggedIn) {
+        reject("ERROR: Must be logged in to refresh roster.");
+        return;
+      }
 
-    // get request that returns the list of members in the chapter, in a csv format
-    axios
-      .get(
-        "https://services.acm.org/public/chapters/loadmembers/view_edit.cfm?CFID=" +
-          this.#CFID +
-          "&CFTOKEN=" +
-          this.#CFTOKEN +
-          "&mcsv=y&expfilter=x"
-      )
-      .then((res) => {
-        //storing csv data in variable as a string...
-        this.#memberList = res.data;
-        this.#acmSubList = [];
-        this.#activeList = [];
-        this.#inactiveList = [];
-      })
-      .catch((err) => {
-        try {
-          this.#loggedIn = false;
-          return this.login(
+      this.#loadMembers()
+        .then((res) => resolve(res))
+        .catch(() => {
+          this.login(
             this.#decrypt(this.#username),
             this.#decrypt(this.#password)
-          );
-        } catch (e) {
-          throw err;
-        }
-      })
-      .finally(() => {
-        // parses and loads members into memberList variables
-        // columns property enables array of objects
-        this.#memberList = parse(this.#memberList, {
-          columns: [
-            "memberNumber",
-            "firstName",
-            "lastName",
-            "email",
-            "affiliation",
-            "memberType",
-            "dateAdded",
-            "expireDate",
-            "activeMember"
-          ]
+          )
+            .then(() => resolve(this.#memberList))
+            .catch((err) => reject(err));
         });
-
-        if (!this.#memberList) {
-          throw new Error("ERROR parsing member list.");
-        }
-
-        // removing first object because it contains column headers
-        this.#memberList.splice(0, 1);
-
-        return this.#memberList;
-      });
+    });
   }
 
   /**
    * Retrieves all members within your student chapter.
    * @returns {object[]} Array of member object(s)
    */
-  async getAllMembers() {
-    return new Promise((resolve, reject) => {
-      if (this.#loggedIn) {
-        resolve(this.#memberList);
-      } else {
-        reject("ERROR: You must be logged in to fetch members.");
-      }
-    });
+  getAllMembers() {
+    if (this.#loggedIn) {
+      return this.#memberList;
+    } else {
+      throw new Error("ERROR: Must be logged in to fetch members.");
+    }
   }
 
   /**
@@ -203,20 +228,18 @@ let Chapter = class {
    * @param {string | number} acmID ACM member ID to search for.
    * @returns {object | undefined} Member object
    */
-  async getMemberByID(acmID) {
-    return new Promise((resolve, reject) => {
-      if (!this.#loggedIn) {
-        reject("ERROR: Must be logged in to fetch member data");
-      } else if (!acmID) {
-        reject("ERROR: Must pass an ID to search for.");
-      } else if (typeof acmID !== "string" && typeof acmID !== "number") {
-        reject("ERROR: ID must be a number or a string.");
-      } else {
-        resolve(
-          this.#memberList.find((element) => element["memberNumber"] == acmID)
-        );
-      }
-    });
+  getMemberByID(acmID) {
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    } else if (!acmID) {
+      throw new Error("ERROR: Must pass an ID to search for.");
+    } else if (typeof acmID !== "string" && typeof acmID !== "number") {
+      throw new Error("ERROR: ID must be a number or a string.");
+    } else {
+      return this.#memberList.find(
+        (element) => element["memberNumber"] == acmID
+      );
+    }
   }
 
   /**
@@ -225,17 +248,15 @@ let Chapter = class {
    * @returns {object | undefined} Member object
    */
   getMemberByEmail(email) {
-    return new Promise((resolve, reject) => {
-      if (!this.#loggedIn) {
-        reject("ERROR: Must be logged in to fetch member data");
-      } else if (!email) {
-        reject("ERROR: Must pass an email to search for.");
-      } else if (typeof email !== "string") {
-        reject("ERROR: Invalid data type, must pass a string.");
-      } else {
-        resolve(this.#memberList.find((element) => element["email"] == email));
-      }
-    });
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    } else if (!email) {
+      throw new Error("ERROR: Must pass an email to search for.");
+    } else if (typeof email !== "string") {
+      throw new Error("ERROR: Invalid data type, must pass a string.");
+    } else {
+      return this.#memberList.find((element) => element["email"] == email);
+    }
   }
 
   /**
@@ -244,23 +265,21 @@ let Chapter = class {
    * @returns {object[]} Array of member object(s)
    */
   getMembersByFirstName(firstName) {
-    return new Promise((resolve, reject) => {
-      if (!this.#loggedIn) {
-        reject("ERROR: Must be logged in to fetch member data");
-      } else if (!firstName) {
-        reject("ERROR: Must pass a name to search for.");
-      } else if (typeof firstName !== "string") {
-        reject("ERROR: Invalid data type, must pass a string.");
-      } else {
-        firstName = firstName.toLowerCase();
-        firstName[0] = firstName[0].toUpperCase();
-        let result = this.#memberList.filter(
-          (member) => member.firstName === firstName
-        );
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    } else if (!firstName) {
+      throw new Error("ERROR: Must pass a name to search for.");
+    } else if (typeof firstName !== "string") {
+      throw new Error("ERROR: Invalid data type, must pass a string.");
+    } else {
+      firstName = firstName.toLowerCase();
+      firstName[0] = firstName[0].toUpperCase();
+      let result = this.#memberList.filter(
+        (member) => member.firstName === firstName
+      );
 
-        resolve(result);
-      }
-    });
+      return result;
+    }
   }
 
   /**
@@ -269,23 +288,21 @@ let Chapter = class {
    * @returns {object[]} Array of member object(s)
    */
   getMembersByLastName(lastName) {
-    return new Promise((resolve, reject) => {
-      if (!this.#loggedIn) {
-        reject("ERROR: Must be logged in to fetch member data");
-      } else if (!lastName) {
-        reject("ERROR: Must pass a name to search for.");
-      } else if (typeof lastName !== "string") {
-        reject("ERROR: Invalid data type, must pass a string.");
-      } else {
-        lastName = lastName.toLowerCase();
-        lastName[0] = lastName[0].toUpperCase();
-        let result = this.#memberList.filter(
-          (member) => member.lastName === lastName
-        );
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    } else if (!lastName) {
+      throw new Error("ERROR: Must pass a name to search for.");
+    } else if (typeof lastName !== "string") {
+      throw new Error("ERROR: Invalid data type, must pass a string.");
+    } else {
+      lastName = lastName.toLowerCase();
+      lastName[0] = lastName[0].toUpperCase();
+      let result = this.#memberList.filter(
+        (member) => member.lastName === lastName
+      );
 
-        resolve(result);
-      }
-    });
+      return result;
+    }
   }
 
   /**
@@ -295,21 +312,19 @@ let Chapter = class {
    * @returns {object[]} Array of member object(s)
    */
   getMembersByType(memberType) {
-    return new Promise((resolve, reject) => {
-      if (!this.#loggedIn) {
-        reject("ERROR: Must be logged in to fetch member data");
-      } else if (!memberType) {
-        reject("ERROR: Must pass an member type to search for.");
-      } else if (typeof memberType !== "string") {
-        reject("ERROR: Invalid data type, must pass a string.");
-      } else {
-        let result = this.#memberList.filter(
-          (member) => member.memberType === memberType
-        );
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    } else if (!memberType) {
+      throw new Error("ERROR: Must pass an member type to search for.");
+    } else if (typeof memberType !== "string") {
+      throw new Error("ERROR: Invalid data type, must pass a string.");
+    } else {
+      let result = this.#memberList.filter(
+        (member) => member.memberType === memberType
+      );
 
-        resolve(result);
-      }
-    });
+      return result;
+    }
   }
 
   /**
@@ -317,19 +332,17 @@ let Chapter = class {
    * @returns {object[]} Array of member object(s)
    */
   getSubscribers() {
-    return new Promise((resolve, reject) => {
-      if (!this.#loggedIn) {
-        reject("ERROR: Must be logged in to fetch member data");
-      } else if (this.#acmSubList.length > 0) {
-        resolve(this.#acmSubList.length);
-      } else {
-        this.#acmSubList = this.#memberList.filter(
-          (member) => member.activeMember === "Yes"
-        );
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    } else if (this.#acmSubList.length > 0) {
+      return this.#acmSubList;
+    } else {
+      this.#acmSubList = this.#memberList.filter(
+        (member) => member.activeMember === "Yes"
+      );
 
-        resolve(this.#acmSubList);
-      }
-    });
+      return this.#acmSubList;
+    }
   }
 
   /**
@@ -337,17 +350,15 @@ let Chapter = class {
    * @returns {object[]} Array of member object(s)
    */
   getNonSubscibers() {
-    return new Promise((resolve, reject) => {
-      if (!this.#loggedIn) {
-        reject("ERROR: Must be logged in to fetch member data");
-      } else {
-        let result = this.#memberList.filter(
-          (member) => member.activeMember === "No"
-        );
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    } else {
+      let result = this.#memberList.filter(
+        (member) => member.activeMember === "No"
+      );
 
-        resolve(result);
-      }
-    });
+      return result;
+    }
   }
 
   /**
@@ -355,20 +366,18 @@ let Chapter = class {
    * @returns {object[]} Array of member object(s)
    */
   getCurrentMembers() {
-    return new Promise((resolve, reject) => {
-      if (!this.#loggedIn) {
-        reject("ERROR: Must be logged in to fetch member data");
-      } else if (this.#activeList.length > 0) {
-        return this.#activeList;
-      } else {
-        const present = new Date().toLocaleDateString("sv");
-        this.#activeList = this.#memberList.filter(
-          (member) => member.expireDate > present
-        );
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    } else if (this.#activeList.length > 0) {
+      return this.#activeList;
+    } else {
+      const present = new Date().toLocaleDateString("sv");
+      this.#activeList = this.#memberList.filter(
+        (member) => member.expireDate > present
+      );
 
-        resolve(this.#activeList);
-      }
-    });
+      return this.#activeList;
+    }
   }
 
   /**
@@ -376,25 +385,18 @@ let Chapter = class {
    * @returns {object[]} Array of member object(s)
    */
   getExpiredMembers() {
-    return new Promise((resolve, reject) => {
-      if (!this.#loggedIn) {
-        reject("ERROR: Must be logged in to fetch member data");
-      } else if (this.#inactiveList.length > 0) {
-        return this.#inactiveList;
-      } else {
-        const present = new Date().toLocaleDateString("sv");
-        this.#inactiveList = this.#memberList.filter(
-          (member) => member.expireDate <= present
-        );
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    } else if (this.#inactiveList.length > 0) {
+      return this.#inactiveList;
+    } else {
+      const present = new Date().toLocaleDateString("sv");
+      this.#inactiveList = this.#memberList.filter(
+        (member) => member.expireDate <= present
+      );
 
-        if (this.#inactiveList.length === 0) {
-          reject("ERROR: No expired members were found.");
-          return;
-        }
-
-        resolve(this.#inactiveList);
-      }
-    });
+      return this.#inactiveList;
+    }
   }
 
   /**
@@ -403,6 +405,9 @@ let Chapter = class {
    * @returns {boolean} Boolean
    */
   isMember(id) {
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    }
     if (!id) return false;
     else if (typeof id === "object") {
       if (id == null) return false;
@@ -422,6 +427,9 @@ let Chapter = class {
    * @returns {boolean} Boolean
    */
   isActiveMember(id) {
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    }
     if (!id) return false;
     else if (typeof id === "object") {
       if (id == null) return false;
@@ -445,6 +453,9 @@ let Chapter = class {
    * @returns {boolean} Boolean
    */
   isOfficer(id) {
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    }
     if (typeof id === "object") {
       if (id == null) return false;
       id = id.memberNumber;
@@ -470,14 +481,20 @@ let Chapter = class {
    * @returns {number} number
    */
   chapterSize() {
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    }
     return this.#memberList.length;
   }
 
   /**
-   * Returns the number of chapter members suscribed to ACM.
+   * Returns the number of chapter members subscribed to ACM.
    * @returns {number} number
    */
   acmSubSize() {
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    }
     // if acm subscriber list hasn't been generated already
     if (this.#acmSubList.length === 0) {
       // populate the acm subscriber list
@@ -500,6 +517,9 @@ let Chapter = class {
    * @returns {number} number
    */
   inactiveSize() {
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    }
     if (this.#inactiveList.length > 0) {
       return this.#inactiveList.length;
     } else {
@@ -522,6 +542,9 @@ let Chapter = class {
    * @returns {number} number
    */
   activeSize() {
+    if (!this.#loggedIn) {
+      throw new Error("ERROR: Must be logged in to fetch member data");
+    }
     if (this.#activeList.length > 0) {
       return this.#activeList.length;
     } else {
