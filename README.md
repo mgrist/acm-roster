@@ -22,7 +22,7 @@ Since the package methods are asynchronous, they must be called within an async 
 
 **Within an async function:**
 ```js
-const Chapter = require("acm-roster");
+import { Chapter } from "acm-roster";
 
 async function main() {
     // creating new client
@@ -42,7 +42,7 @@ async function main() {
 
 **Within a promise:**
 ```js
-const Chapter = require("acm-roster");
+import { Chapter } from "acm-roster";
 
 // creating new client
 const client = new Chapter();
