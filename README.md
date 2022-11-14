@@ -7,6 +7,9 @@ Dependencies:
 * axios
 * csv-parse
 
+## Contributions
+If you would like to make a contribution, please make sure you run `npm run lint:check` and `npm run build` before submitting any pull requests. Any PR's that have linting issues will not be merged. The build script only needs to run when a type change has occured. 
+
 ## What you need to know
 1. To log your client in, you need the [ACM Administrator Panel](https://services.acm.org/public/chapters/chapterprofile/chapteradmin.cfm) **username and password** for your chapter.
 2. You MUST log in before using any other methods.
