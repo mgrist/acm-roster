@@ -1,6 +1,6 @@
 {
   "name": "acm-roster",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Fetches member data from ACM Admin Panel",
   "main": "index.js",
   "type": "commonjs",
