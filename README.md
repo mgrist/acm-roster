@@ -5,7 +5,6 @@ Typescript declarations are not yet included.
 
 Dependencies:
 * axios
-* crypto
 * csv-parse
 
 ## What you need to know
