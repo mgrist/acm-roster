@@ -9,8 +9,8 @@ Dependencies:
 
 ## What you need to know
 1. To log your client in, you need the ACM Administrator Panel **username and password** for your chapter.
-2. When logging in to the ACM panel with the client, it is strongly recommended that you **do not enter your username and password as inline plaintext.** An alternative is to use a `.json` or `.env` file to hold your username and password, import the data fields, and add the file to `.gitignore`.
-3. You must log in before using the other methods.  
+2. You MUST log in before using any other methods.
+3. When logging in to the ACM panel with the client, it is strongly recommended that you **do not enter your username and password as inline plaintext.** An alternative is to use a `.json` or `.env` file to hold your username and password, import the data fields, and add the file to `.gitignore`.  
 4. The login() and refreshRoster() methods are asynchronous take several seconds (5 on average) to execute.
 
 ## Installation
