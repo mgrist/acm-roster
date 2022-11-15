@@ -1,3 +1,4 @@
+![version 1.0.0](https://img.shields.io/npm/v/acm-roster)	![open issues](https://img.shields.io/github/issues-raw/mgrist/acm-roster)<br>
 # acm-roster
 acm-roster is an npm ([node.js](https://nodejs.org/en/)) package that fetches the roster data of an ACM Student Chapter. This is intended to be used by ACM Student Chapters that need to access their chapter members data for use in their applications. The script provides the member number, first name, last name, e-mail, affiliation, membership type, date added, expiration date, and ACM membership status for all current chapter members.
 
@@ -14,13 +15,13 @@ If you would like to make a contribution, please make sure you run `npm run lint
 1. To log your client in, you need the [ACM Administrator Panel](https://services.acm.org/public/chapters/chapterprofile/chapteradmin.cfm) **username and password** for your chapter.
 2. You MUST log in before using any other methods.
 3. When logging in to the ACM panel with the client, it is strongly recommended that you **do not enter your username and password as inline plaintext.** An alternative is to use a `.json` or `.env` file to hold your username and password, import the data fields, and add the file to `.gitignore`.  
-4. The login() and refreshRoster() methods are asynchronous take several seconds (5 on average) to execute.
+4. The login() and refreshRoster() methods are asynchronous and can take several seconds to execute due to server latency.
 
 ## Installation
 Run the command `npm install acm-roster` to add this package to your project.
 
 ## Usage
-Since the package methods are asynchronous, they must be called within an async function or within a promise. It is important that the login method finishes its job before the next method begins. Both techniques are show below:<br><br>
+Since the login and refresh methods are asynchronous, they must be called within an async function or within a promise. It is important that the login method finishes its job before the next method begins. Both techniques are show, below:<br><br>
 
 **Within an async function:**
 ```js
