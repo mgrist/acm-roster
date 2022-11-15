@@ -3,7 +3,7 @@ const { parse } = require("csv-parse/sync");
 const FormData = require("form-data");
 const crypto = require("crypto");
 
-let Chapter = class {
+class Chapter {
   #memberList = [];
   #acmSubList = [];
   #activeList = [];
@@ -561,6 +561,6 @@ let Chapter = class {
       return count;
     }
   }
-};
+}
 
 module.exports = Chapter;
