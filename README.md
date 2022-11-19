@@ -1,6 +1,6 @@
-![version 1.0.0](https://img.shields.io/npm/v/acm-roster)	![open issues](https://img.shields.io/github/issues-raw/mgrist/acm-roster)<br>
+[![version 1.0.0](https://img.shields.io/npm/v/acm-roster)](https://www.npmjs.com/package/acm-roster)	[![open issues](https://img.shields.io/github/issues-raw/mgrist/acm-roster)](https://github.com/mgrist/acm-roster/issues)	[![download per week](https://img.shields.io/npm/dw/acm-roster)](https://www.npmjs.com/package/acm-roster) <br>
 # acm-roster
-acm-roster is an npm ([node.js](https://nodejs.org/en/)) package that fetches the roster data of an ACM Student Chapter. This is intended to be used by ACM Student Chapters that need to access their chapter members data for use in their applications. The script provides the member number, first name, last name, e-mail, affiliation, membership type, date added, expiration date, and ACM membership status for all current chapter members.
+acm-roster is an [npm package](https://www.npmjs.com/package/acm-roster) that fetches the roster data of an ACM Student Chapter. This is intended to be used by ACM Student Chapters that need to access their chapter members data for use in their applications. The script provides the member number, first name, last name, e-mail, affiliation, membership type, date added, expiration date, and ACM membership status for all current chapter members.
 
 Typescript declarations included.
 
@@ -9,7 +9,7 @@ Dependencies:
 * csv-parse
 
 ## Contributions
-If you would like to make a contribution, please make sure you run `npm run lint:check` and `npm run build` before submitting any pull requests. Any PR's that have linting issues will not be merged. The build script only needs to run when a type change has occured. 
+If you would like to make a contribution, please make sure you run `npm run lint:check` and `npm run build` before submitting any pull requests. Any PR's that have linting issues will not be merged.
 
 ## What you need to know
 1. To log your client in, you need the [ACM Administrator Panel](https://services.acm.org/public/chapters/chapterprofile/chapteradmin.cfm) **username and password** for your chapter.
